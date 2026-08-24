@@ -108,6 +108,7 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
               <div>
                 <h2 className="t-display-md">{item.title}</h2>
                 <p className="body-copy mt-2 max-w-[52ch]">{item.blurb}</p>
+                <p className="t-label-sm mt-2 text-faint">{item.role}</p>
               </div>
               <div className="t-label flex shrink-0 items-center gap-4">
                 <span className="text-cyan-soft">{item.category}</span>
