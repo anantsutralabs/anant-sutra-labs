@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --violet: #7B4DFF;
+    --violet-soft: #B79CFF;
+    --cyan: #22D3EE;
+    --cyan-soft: #8FEAF5;
+    --gold: #E9B85E;
+    --hair: rgba(255, 255, 255, 0.10);
+    --shell: 1280px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    /* `clip` prevents horizontal overflow without turning the element into a
+       scroll container — `hidden` here (or on body) breaks Lenis and stops
+       IntersectionObserver from ever reporting an intersection. */
+    overflow-x: clip;
+  }
+
+  body {
+    margin: 0;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
+    background: #050508;
+    color: #fff;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  ::selection { background: rgba(123, 77, 255, 0.35); color: #fff; }
+
+  /* the WebGL canvas is the page background — keep the DOM transparent */
+  #root { position: relative; z-index: 1; }
+
+  a { color: inherit; text-decoration: none; }
+
+  input, textarea, select, button { font: inherit; color: inherit; }
+
+  @media (pointer: fine) {
+    /* custom cursor takes over */
+    body.has-cursor, body.has-cursor * { cursor: none !important; }
+  }
+}
+
+@layer components {
+  .shell { @apply mx-auto w-full px-6 md:px-10; max-width: var(--shell); }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--violet-soft);
+  }
+
+  /* small wide-tracked UI text: nav, pills, meta */
+  .t-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+
+  .t-label-sm {
+    font-size: 0.625rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .hair { height: 1px; background: var(--hair); }
+
+  /*
+    One fluid type scale for the whole site. Sizes are clamped so display type
+    never runs away on an ultrawide monitor or collapses on a phone, and the
+    tracking tightens as the size grows — a single letter-spacing value cannot
+    serve both a 128px headline and a 15px paragraph.
+  */
+  .t-display-xl,
+  .t-display-lg,
+  .t-display-md,
+  .t-display-sm {
+    font-weight: 700;
+    text-wrap: balance;
+  }
+
+  .t-display-xl {
+    font-size: clamp(3rem, 8vw, 8rem);
+    letter-spacing: -0.042em;
+    line-height: 0.88;
+  }
+
+  .t-display-lg {
+    font-size: clamp(2.5rem, 5.4vw, 5rem);
+    letter-spacing: -0.035em;
+    line-height: 0.94;
+  }
+
+  .t-display-md {
+    font-size: clamp(1.9rem, 3.4vw, 3.1rem);
+    letter-spacing: -0.028em;
+    line-height: 1.02;
+  }
+
+  .t-display-sm {
+    font-size: clamp(1.2rem, 1.5vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.018em;
+    line-height: 1.18;
+  }
+
+  /* kept as an alias so any stray usage still lands in the system */
+  .display {
+    font-weight: 700;
+    letter-spacing: -0.032em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  .t-lead {
+    font-size: clamp(1rem, 1.1vw, 1.125rem);
+    line-height: 1.6;
+    letter-spacing: -0.004em;
+    color: #A5A1B4;
+  }
+
+  .body-copy {
+    color: #948FA8;
+    font-size: 0.9375rem;
+    line-height: 1.68;
+    letter-spacing: -0.002em;
+    text-wrap: pretty;
+  }
+
+  /* prices, durations and counters must not jitter as digits change */
+  .tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1; }
+
+  .grad-text {
+    background: linear-gradient(100deg, var(--violet-soft), var(--cyan-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.022);
+    border: 1px solid var(--hair);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .focus-ring:focus-visible {
+    outline: 1px solid var(--cyan-soft);
+    outline-offset: 3px;
+  }
+}
+
+/*
+  The WebGL canvas sits behind the DOM (-z-10), so the page would normally
+  swallow every pointer event before it reaches the 3D gallery. While the arc
+  is on screen we let events fall through the page shell, and switch them back
+  on for the chrome and the real UI.
+*/
+@layer components {
+  body.arc-active #root,
+  body.arc-active main { pointer-events: none; }
+
+  body.arc-active header,
+  body.arc-active footer,
+  body.arc-active [data-ui] { pointer-events: auto; }
+}
+
+@layer utilities {
+  .mask-line { display: block; overflow: hidden; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { scrollbar-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

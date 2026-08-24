@@ -1,0 +1,184 @@
+import { motion } from 'framer-motion'
+import { SplitText } from '../components/SplitText'
+import { Reveal, HairRule } from '../components/Reveal'
+import { Magnetic } from '../components/Magnetic'
+import { ButtonLink, PageLink } from '../components/PageLink'
+import { capabilityStats } from '../data/services'
+import { featured } from '../data/work'
+import { tiers } from '../data/pricing'
+import { site } from '../data/site'
+
+export default function Home() {
+  return (
+    <>
+      {/* ── HERO ─────────────────────────────────────────────── */}
+      <section className="relative flex min-h-[100svh] flex-col justify-center">
+        {/* keeps the headline legible where it crosses the glass mark */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(100deg, rgba(5,5,8,0.92) 0%, rgba(5,5,8,0.72) 32%, rgba(5,5,8,0.18) 58%, rgba(5,5,8,0) 78%)',
+          }}
+        />
+        <div className="relative z-10 shell pt-24">
+          <Reveal>
+            <span className="eyebrow">AI Content Production Studio</span>
+          </Reveal>
+
+          <h1 className="mt-7">
+            <SplitText
+              as="span"
+              text="AI Ads &"
+              className="t-display-xl block"
+              stagger={0.03}
+            />
+            <SplitText
+              as="span"
+              text="Cinematic Films"
+              className="t-display-xl block"
+              stagger={0.026}
+              delay={0.14}
+            />
+          </h1>
+
+          <Reveal delay={0.5}>
+            <p className="t-lead mt-8 max-w-[34ch]">{site.sub}</p>
+          </Reveal>
+
+          <Reveal delay={0.62}>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Magnetic>
+                <ButtonLink to="/portfolio">View Work</ButtonLink>
+              </Magnetic>
+              <Magnetic>
+                <ButtonLink to="/contact" variant="ghost">Start a Project</ButtonLink>
+              </Magnetic>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* scroll cue */}
+        <motion.div
+          className="pointer-events-none absolute bottom-8 left-0 right-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 1 }}
+        >
+          <div className="shell flex items-center justify-between">
+            <span className="t-label-sm text-faint">Scroll</span>
+            <div className="h-10 w-px overflow-hidden bg-white/10">
+              <motion.div
+                className="h-full w-full"
+                style={{ background: 'linear-gradient(180deg, #7B4DFF, #22D3EE)' }}
+                animate={{ y: ['-100%', '100%'] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ── CAPABILITY STATS ─────────────────────────────────── */}
+      <section className="shell pt-24 md:pt-36">
+        <Reveal><span className="eyebrow">Why Anant Sutra</span></Reveal>
+        <HairRule className="mt-6" />
+
+        <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+          {capabilityStats.map((s, i) => (
+            <Reveal key={s.title} delay={i * 0.08}>
+              <article>
+                <span className="t-label tnum text-violet-soft">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="t-display-sm mt-4">{s.title}</h3>
+                <p className="body-copy mt-3 text-sm">{s.desc}</p>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+
+        <Reveal delay={0.2}>
+          <PageLink
+            to="/about"
+            className="focus-ring t-label group mt-14 inline-flex items-center gap-3 text-white/70 transition-colors hover:text-white"
+          >
+            About the studio
+            <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+          </PageLink>
+        </Reveal>
+      </section>
+
+      {/* ── FEATURED WORK STRIP ──────────────────────────────── */}
+      <section className="shell pt-28 md:pt-40">
+        <div className="flex items-end justify-between gap-6">
+          <Reveal><span className="eyebrow">Selected Work</span></Reveal>
+          <Reveal delay={0.1}>
+            <PageLink
+              to="/portfolio"
+              className="focus-ring t-label group flex items-center gap-3 text-white/60 transition-colors hover:text-white"
+            >
+              All work
+              <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+            </PageLink>
+          </Reveal>
+        </div>
+        <HairRule className="mt-6" />
+
+        <div className="mt-10 grid gap-6 md:grid-cols-3">
+          {featured.map((item, i) => (
+            <Reveal key={item.id} delay={i * 0.1}>
+              <PageLink to="/portfolio" className="focus-ring group block">
+                <div
+                  className="relative overflow-hidden rounded-lg border border-white/10"
+                  style={{ aspectRatio: String(item.aspect) }}
+                >
+                  <img
+                    src={item.poster}
+                    alt={`${item.title} — ${item.category} film by Anant Sutra Labs`}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover opacity-70 grayscale transition-all duration-[900ms] ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04] group-hover:opacity-100 group-hover:grayscale-0"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+                    style={{
+                      background:
+                        'linear-gradient(160deg, rgba(123,77,255,0.20), transparent 42%, rgba(34,211,238,0.16))',
+                    }}
+                  />
+                </div>
+                <div className="mt-4 flex items-baseline justify-between gap-4">
+                  <h3 className="text-[0.9rem] font-medium tracking-[-0.01em]">{item.title}</h3>
+                  <span className="t-label-sm text-faint">
+                    {item.category}
+                  </span>
+                </div>
+              </PageLink>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ── PRICING ENTRY POINT ──────────────────────────────── */}
+      <section className="shell pt-28 md:pt-40">
+        <HairRule />
+        <Reveal delay={0.05}>
+          <PageLink to="/pricing" className="focus-ring group block py-14 md:py-20">
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <p className="t-display-lg">
+                Campaigns from{' '}
+                <span className="tnum text-gold">{tiers[0].price}</span>.
+              </p>
+              <span className="t-label flex shrink-0 items-center gap-3 pb-2 text-white/60 transition-colors group-hover:text-white">
+                See the rate card
+                <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+              </span>
+            </div>
+          </PageLink>
+        </Reveal>
+        <HairRule />
+      </section>
+    </>
+  )
+}
