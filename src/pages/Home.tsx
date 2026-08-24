@@ -5,7 +5,6 @@ import { Magnetic } from '../components/Magnetic'
 import { ButtonLink, PageLink } from '../components/PageLink'
 import { capabilityStats } from '../data/services'
 import { featured } from '../data/work'
-import { tiers } from '../data/pricing'
 import { site } from '../data/site'
 
 export default function Home() {
@@ -160,18 +159,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── PRICING ENTRY POINT ──────────────────────────────── */}
+      {/* ── PROJECT CTA ───────────────────────────────────────── */}
       <section className="shell pt-28 md:pt-40">
         <HairRule />
         <Reveal delay={0.05}>
-          <PageLink to="/pricing" className="focus-ring group block py-14 md:py-20">
+          <PageLink to="/contact" className="focus-ring group block py-14 md:py-20">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <p className="t-display-lg">
-                Campaigns from{' '}
-                <span className="tnum text-gold">{tiers[0].price}</span>.
-              </p>
+              <p className="t-display-lg">Have a project in mind?</p>
               <span className="t-label flex shrink-0 items-center gap-3 pb-2 text-white/60 transition-colors group-hover:text-white">
-                See the rate card
+                Start a conversation
                 <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
               </span>
             </div>

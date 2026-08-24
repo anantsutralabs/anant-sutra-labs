@@ -3,7 +3,7 @@ import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
 import { Magnetic } from '../components/Magnetic'
 import { site } from '../data/site'
-import { tiers } from '../data/pricing'
+import { services } from '../data/services'
 
 /** Hairline-underline field with a gradient underline that animates on focus. */
 function Field({
@@ -73,7 +73,7 @@ function Field({
 export default function Contact() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [project, setProject] = useState(tiers[3].title)
+  const [project, setProject] = useState(services[1].title)
   const [message, setMessage] = useState('')
 
   const submit = (e: React.FormEvent) => {
@@ -120,9 +120,9 @@ export default function Contact() {
             </div>
 
             <Field label="Project type" name="project" as="select" value={project} onChange={setProject}>
-              {tiers.map((t) => (
-                <option key={t.id} value={t.title} className="bg-ink2">
-                  {t.title} — {t.price} {t.unit}
+              {services.map((s) => (
+                <option key={s.id} value={s.title} className="bg-ink2">
+                  {s.title}
                 </option>
               ))}
               <option value="Custom scope" className="bg-ink2">Custom scope</option>

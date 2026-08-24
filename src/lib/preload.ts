@@ -20,9 +20,6 @@ export function preloadRoute(to: string) {
     case '/about':
       import('../pages/About')
       break
-    case '/pricing':
-      import('../pages/Pricing')
-      break
     case '/contact':
       import('../pages/Contact')
       break

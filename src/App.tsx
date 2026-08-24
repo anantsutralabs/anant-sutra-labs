@@ -18,7 +18,6 @@ import { work, type WorkItem, type Category } from './data/work'
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
 const Portfolio = lazy(() => import('./pages/Portfolio'))
-const Pricing = lazy(() => import('./pages/Pricing'))
 const Contact = lazy(() => import('./pages/Contact'))
 
 /** Keeps frameState.route in sync however navigation happened. */
@@ -80,7 +79,6 @@ function Shell({
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/portfolio" element={<Portfolio onOpen={setOpenItem} openItem={openItem} />} />
-            <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<Home />} />
           </Routes>

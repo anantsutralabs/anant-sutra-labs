@@ -44,14 +44,6 @@ export const waypoints: Record<string, Waypoint> = {
     logoPresence: 0,
     logoAnchor: V(-13.5, 4.6, -14),
   },
-  // Rate card — a shelf of light, camera slightly above.
-  '/pricing': {
-    position: V(2.5, 13.5, 6.4),
-    target: V(2.5, 13.0, 0),
-    via: V(3.5, 6.5, 11.0),
-    logoPresence: 0,
-    logoAnchor: V(4.5, 14.6, -10),
-  },
   // Wide open dark space; the mark reappears far away, slowly rotating.
   '/contact': {
     position: V(-3.0, -13.5, 8.0),
