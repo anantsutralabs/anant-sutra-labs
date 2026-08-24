@@ -74,7 +74,7 @@ function Field({
 export default function Contact() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [project, setProject] = useState(services[1].title)
+  const [project, setProject] = useState(services.find((s) => s.id === 'video')!.title)
   const [message, setMessage] = useState('')
 
   const submit = (e: React.FormEvent) => {

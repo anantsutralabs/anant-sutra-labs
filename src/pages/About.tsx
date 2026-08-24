@@ -37,16 +37,6 @@ function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
           <path d="m20 14 7-3.5v11L20 18z" {...common} />
         </>
       )}
-      {kind === 'wave' && (
-        <path d="M4 16h4l3-8 4 16 3.5-11 3 6 2.5-3H28" {...common} />
-      )}
-      {kind === 'avatar' && (
-        <>
-          <circle cx="13" cy="12" r="4.2" {...common} />
-          <path d="M5.5 25c.8-4.4 4-6.6 7.5-6.6s6.7 2.2 7.5 6.6" {...common} />
-          <path d="M22 9.6a4.2 4.2 0 0 1 0 7.2M25 7a7.4 7.4 0 0 1 0 12.4" {...common} opacity={0.55} />
-        </>
-      )}
       {kind === 'motion' && (
         <>
           <path d="m9 23 5.5-14 3.2 8 2.6-3 4.7 9z" {...common} />
@@ -63,6 +53,36 @@ function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
         <>
           <path d="M7 13a9 9 0 0 1 15.5-3.5M25 19a9 9 0 0 1-15.5 3.5" {...common} />
           <path d="M22 5.5V10h-4.5M10 26.5V22h4.5" {...common} />
+        </>
+      )}
+      {kind === 'clapper' && (
+        <>
+          <path d="M5 13.5 26 12v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z" {...common} />
+          <path d="m5 13.5 1.3-6.8L25 10l-1 3.3z" {...common} />
+          <path d="m10.5 6.3-1.6 6.9M16.5 7.2l-1.6 6.9M22 8l-1.5 6.9" {...common} opacity={0.6} />
+        </>
+      )}
+      {kind === 'megaphone' && (
+        <>
+          <path d="M5 14v4h3l11 6V8L8 14z" {...common} />
+          <path d="M19 8v16" {...common} />
+          <path d="M23 13.5a4.6 4.6 0 0 1 0 5" {...common} opacity={0.6} />
+          <path d="M6.5 18v5a1.5 1.5 0 0 0 3 0v-4" {...common} opacity={0.75} />
+        </>
+      )}
+      {kind === 'browser' && (
+        <>
+          <rect x="4.5" y="7" width="23" height="18" rx="2" {...common} />
+          <path d="M4.5 12.2h23" {...common} />
+          <circle cx="7.6" cy="9.6" r="0.9" fill={stroke} stroke="none" />
+          <circle cx="10.4" cy="9.6" r="0.9" fill={stroke} stroke="none" opacity={0.6} />
+        </>
+      )}
+      {kind === 'reel' && (
+        <>
+          <rect x="9" y="4" width="14" height="24" rx="2.5" {...common} />
+          <path d="M13 8.5h6M13 23.5h6" {...common} opacity={0.65} />
+          <path d="m14.3 13.2 4.4 2.8-4.4 2.8z" fill={stroke} stroke="none" />
         </>
       )}
     </motion.svg>
@@ -193,7 +213,7 @@ export default function About() {
         <HairRule className="mt-8" />
 
         <Reveal delay={0.12}>
-          <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-8 sm:gap-x-12">
+          <div className="mt-10 flex flex-wrap items-center gap-x-14 gap-y-10">
             {clients.map((c) => (
               <img
                 key={c.id}
@@ -201,7 +221,7 @@ export default function About() {
                 alt={c.name}
                 loading="lazy"
                 decoding="async"
-                className="h-9 w-auto max-w-[9rem] object-contain opacity-70 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 sm:h-11"
+                className="h-[72px] w-auto max-w-[18rem] object-contain transition-transform duration-500 hover:scale-[1.05] sm:h-[88px]"
               />
             ))}
           </div>
