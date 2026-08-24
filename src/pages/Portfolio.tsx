@@ -5,7 +5,6 @@ import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
 import { work, categories, type WorkItem } from '../data/work'
 import { device } from '../lib/device'
-import { site } from '../data/site'
 import { frameState } from '../lib/frameState'
 import { getLenis } from '../lib/useLenis'
 
@@ -234,12 +233,6 @@ export default function Portfolio({
         </section>
       )}
 
-      <section data-ui className="shell relative z-10 mt-24">
-        <HairRule />
-        <p className="mt-8 max-w-[70ch] text-[11px] leading-relaxed text-faint">
-          {site.specNotice}
-        </p>
-      </section>
     </>
   )
 }

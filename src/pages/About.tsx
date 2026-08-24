@@ -5,6 +5,7 @@ import { Reveal, HairRule } from '../components/Reveal'
 import { PageLink } from '../components/PageLink'
 import { services, type Service } from '../data/services'
 import { bio } from '../data/background'
+import { clients } from '../data/clients'
 
 /** Small line-art glyph per capability — animates on hover. */
 function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
@@ -124,7 +125,7 @@ export default function About() {
         </Reveal>
       </section>
 
-      {/* ── WHAT WE DO — capability grid ─────────────────────────────── */}
+      {/* ── WHAT WE DO — capability list, not a thumbnail grid ────────── */}
       <section className="shell pt-28 md:pt-36">
         <span className="eyebrow">What We Do</span>
         <Reveal delay={0.06}>
@@ -134,44 +135,35 @@ export default function About() {
         </Reveal>
         <HairRule className="mt-8" />
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div role="list" className="mt-4">
           {services.map((s, i) => (
-            <Reveal key={s.id} delay={Math.min(i, 6) * 0.06}>
+            <Reveal key={s.id} delay={Math.min(i, 6) * 0.05}>
               <article
+                role="listitem"
                 onMouseEnter={() => setHover(s.id)}
                 onMouseLeave={() => setHover((h) => (h === s.id ? null : h))}
-                className="group relative flex h-[280px] flex-col justify-between overflow-hidden rounded-xl border border-white/10 p-7 transition-colors duration-500 hover:border-white/25"
+                className="group relative grid grid-cols-1 gap-3 border-t border-white/10 py-6 transition-colors duration-500 last:border-b sm:grid-cols-[3rem_15rem_1fr] sm:items-center sm:gap-6"
               >
-                {/* real work still, dimmed — ties the abstract capability back to actual footage */}
-                <img
-                  src={s.image}
-                  alt=""
+                {/* accent bar — the hover state, not an image thumbnail */}
+                <span
                   aria-hidden="true"
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute inset-0 h-full w-full object-cover opacity-[0.16] grayscale transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:opacity-30 group-hover:grayscale-0"
-                />
-                <div
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/75 to-[#050508]/35"
-                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 -left-6 w-px origin-top scale-y-0 transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-y-100 md:-left-10"
+                  style={{ background: 'linear-gradient(180deg, #7B4DFF, #22D3EE)' }}
                 />
 
-                <div className="relative z-10 flex items-start justify-between">
-                  <Glyph kind={s.glyph} active={hover === s.id} />
-                  <span className="t-label tnum text-faint">
+                <span className="t-label tnum hidden text-faint sm:block">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+
+                <div className="flex items-center gap-4">
+                  <span className="t-label tnum text-faint sm:hidden">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                </div>
-
-                <div className="relative z-10">
+                  <Glyph kind={s.glyph} active={hover === s.id} />
                   <h3 className="t-display-sm">{s.title}</h3>
-                  <p className="body-copy mt-3">{s.desc}</p>
                 </div>
 
-                <span
-                  className="absolute inset-x-7 bottom-0 z-10 h-px origin-left scale-x-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100"
-                  style={{ background: 'linear-gradient(90deg, #7B4DFF, #22D3EE)' }}
-                />
+                <p className="body-copy">{s.desc}</p>
               </article>
             </Reveal>
           ))}
@@ -186,6 +178,32 @@ export default function About() {
               Custom scope? Let's talk.
               <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
             </PageLink>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── WORKED WITH — brands & networks, sourced from the resume ───── */}
+      <section className="shell pt-28 md:pt-36">
+        <span className="eyebrow">Worked With</span>
+        <Reveal delay={0.06}>
+          <h2 className="t-display-md mt-5 max-w-[20ch]">
+            Studios, networks and broadcasts.
+          </h2>
+        </Reveal>
+        <HairRule className="mt-8" />
+
+        <Reveal delay={0.12}>
+          <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-8 sm:gap-x-12">
+            {clients.map((c) => (
+              <img
+                key={c.id}
+                src={`/brand/clients/${c.id}.png`}
+                alt={c.name}
+                loading="lazy"
+                decoding="async"
+                className="h-9 w-auto max-w-[9rem] object-contain opacity-70 grayscale transition-all duration-500 hover:opacity-100 hover:grayscale-0 sm:h-11"
+              />
+            ))}
           </div>
         </Reveal>
       </section>
