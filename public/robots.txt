@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://anantsutralabs.com/sitemap.xml
+Sitemap: https://www.anantsutralabs.com/sitemap.xml

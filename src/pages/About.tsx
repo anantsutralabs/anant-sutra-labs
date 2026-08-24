@@ -129,7 +129,7 @@ export default function About() {
         </Reveal>
 
         <Reveal delay={0.58}>
-          <p className="mt-8 text-sm text-cyan-soft">— Founder, Anant Sutra Labs</p>
+          <p className="mt-8 text-sm text-cyan-soft">— Naveen Sharma, AI Filmmaker & Founder</p>
         </Reveal>
       </section>
 
