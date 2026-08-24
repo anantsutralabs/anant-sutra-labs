@@ -4,15 +4,24 @@
 **AI Filmmaker**
 
 ## Sentence
-**Fifteen years of VFX, now directing ads and films with AI.**
+**13+ years of VFX, now directing ads and films with AI.**
 
 ## Why this pairing
-This is what you already say about yourself — it's the phrasing already
-running in the Anant Sutra Labs Instagram bio, not a new invention. The job
-of a title + sentence is to be repeatable: something a colleague could say
-about you from memory after meeting you once. "AI Filmmaker" names the
-craft; the sentence supplies the 15 years of VFX that makes the AI part
-credible rather than a shortcut.
+"AI Filmmaker" is what you already say about yourself — it's the title
+line in your own resume ("AI Filmmaker | Generative Storyteller | Visual
+World-Building | 3D Environment Designer"), not a new invention.
+
+The years figure was corrected on 2026-08-24: the Instagram bio says "15
+yrs," but the resume's actual work history (Morph Technologies 2014 →
+present) documents 13+ years. Resume wins — it's the version a hiring
+manager or client is most likely to cross-check. The Instagram bio is
+now the outlier and should probably be updated to match, though that's
+outside this site's scope.
+
+The job of a title + sentence is to be repeatable: something a colleague
+could say about you from memory after meeting you once. "AI Filmmaker"
+names the craft; the sentence supplies the years of VFX that make the AI
+part credible rather than a shortcut.
 
 Alternatives considered, if this ever needs revisiting:
 - **AI Film Director** — more conventional job-title shape, reads well to

@@ -16,7 +16,7 @@ import { device } from '../lib/device'
 /**
  * A phone viewport is only ~2.2 world units wide, so the desktop hero anchor
  * (offset right of the headline) pushes the mark clean off frame. On mobile it
- * centres and sits above the type instead.
+ * centers and sits above the type instead.
  */
 const MOBILE_HERO_ANCHOR = new THREE.Vector3(0, 1.28, 0)
 

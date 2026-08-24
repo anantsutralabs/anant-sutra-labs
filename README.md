@@ -91,7 +91,7 @@ The mark appears in the home hero only; on inner routes it is culled entirely
 (`logoPresence: 0` in `waypoints.ts`).
 
 The arc fades cards past `VISIBLE_ARC` in `WorkArc.tsx`. Without that, a
-catalogue larger than `2π / SPREAD` closes the circle and the last card lands
+catalog larger than `2π / SPREAD` closes the circle and the last card lands
 on top of the first.
 
 - `prefers-reduced-motion` renders static type with no reveal animations.

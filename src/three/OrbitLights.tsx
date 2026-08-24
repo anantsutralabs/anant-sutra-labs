@@ -8,14 +8,14 @@ import { waypointFor } from './waypoints'
 export function OrbitLights() {
   const a = useRef<THREE.PointLight>(null!)
   const b = useRef<THREE.PointLight>(null!)
-  const centre = useRef(new THREE.Vector3())
+  const center = useRef(new THREE.Vector3())
 
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 1 / 30)
     const t = state.clock.elapsedTime
     const wp = waypointFor(frameState.route)
-    centre.current.lerp(wp.target, 1 - Math.exp(-2.5 * delta))
-    const c = centre.current
+    center.current.lerp(wp.target, 1 - Math.exp(-2.5 * delta))
+    const c = center.current
 
     a.current.position.set(
       c.x + Math.cos(t * 0.34) * 4.2,

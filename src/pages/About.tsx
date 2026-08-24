@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
 import { PageLink } from '../components/PageLink'
 import { services, type Service } from '../data/services'
-import { device } from '../lib/device'
+import { bio } from '../data/background'
 
 /** Small line-art glyph per capability — animates on hover. */
 function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
@@ -19,7 +19,7 @@ function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
   return (
     <motion.svg
       viewBox="0 0 32 32"
-      className="h-8 w-8"
+      className="h-7 w-7"
       animate={{ rotate: active ? (kind === 'loop' ? 180 : 0) : 0, scale: active ? 1.12 : 1 }}
       transition={{ type: 'spring', stiffness: 220, damping: 18 }}
       aria-hidden="true"
@@ -69,29 +69,7 @@ function Glyph({ kind, active }: { kind: Service['glyph']; active: boolean }) {
 }
 
 export default function About() {
-  const railWrap = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<string | null>(null)
-  const [travel, setTravel] = useState(0)
-
-  const { scrollYProgress } = useScroll({
-    target: railWrap,
-    offset: ['start start', 'end end'],
-  })
-  const x = useTransform(scrollYProgress, [0, 1], [0, -travel])
-
-  // measure how far the rail must travel so the last card lands flush
-  useEffect(() => {
-    const measure = () => {
-      const track = railWrap.current?.querySelector<HTMLElement>('[data-track]')
-      if (!track) return
-      setTravel(Math.max(0, track.scrollWidth - window.innerWidth + 48))
-    }
-    measure()
-    addEventListener('resize', measure)
-    return () => removeEventListener('resize', measure)
-  }, [])
-
-  const pinned = !device.isMobile && !device.reducedMotion
 
   return (
     <>
@@ -103,7 +81,7 @@ export default function About() {
         <h1 className="mt-7">
           <SplitText
             as="span"
-            text="15 years in animation."
+            text="13+ years in animation."
             className="t-display-lg block"
             stagger={0.018}
           />
@@ -119,7 +97,7 @@ export default function About() {
 
         <Reveal delay={0.45}>
           <p className="body-copy mt-10 max-w-[66ch]">
-            Anant Sutra Labs is led by a 15-year veteran of the animation and VFX industry — from
+            Anant Sutra Labs is led by a 13+ year veteran of the animation and VFX industry — from
             frame-by-frame craft to full studio productions. That background is why every
             AI-generated frame we deliver still gets held to a director's standard: composition,
             lighting, pacing, and story sense that AI alone can't replicate. We didn't start as an AI
@@ -133,71 +111,83 @@ export default function About() {
         </Reveal>
       </section>
 
-      {/* ── PINNED HORIZONTAL CAPABILITIES RAIL ──────────────── */}
-      <section
-        ref={railWrap}
-        className="relative mt-28"
-        style={{ height: pinned ? `${Math.max(180, services.length * 62)}vh` : 'auto' }}
-      >
-        <div
-          className={
-            pinned
-              ? 'sticky top-0 flex h-screen flex-col justify-center overflow-hidden'
-              : 'flex flex-col justify-center overflow-hidden'
-          }
-        >
-          <div className="shell">
-            <span className="eyebrow">What We Do</span>
-            <h2 className="t-display-md mt-5 max-w-[18ch]">
-              One studio. Every format you need.
-            </h2>
-            <HairRule className="mt-8" />
-          </div>
+      {/* ── BACKGROUND — career history prior to Anant Sutra Labs ────── */}
+      <section className="shell pt-28 md:pt-36">
+        <Reveal><span className="eyebrow">Background</span></Reveal>
+        <Reveal delay={0.08}>
+          <h2 className="t-display-md mt-5 max-w-[20ch]">Before the studio.</h2>
+        </Reveal>
+        <HairRule className="mt-8" />
 
-          <motion.div
-            data-track
-            style={pinned ? { x } : undefined}
-            className={`mt-12 flex gap-6 px-6 md:px-10 ${
-              pinned ? 'w-max' : 'no-scrollbar w-full snap-x snap-mandatory overflow-x-auto pb-4'
-            }`}
-          >
-            {services.map((s, i) => (
+        <Reveal delay={0.15}>
+          <p className="body-copy mt-8 max-w-[72ch] text-[15px] leading-[1.75]">{bio}</p>
+        </Reveal>
+      </section>
+
+      {/* ── WHAT WE DO — capability grid ─────────────────────────────── */}
+      <section className="shell pt-28 md:pt-36">
+        <span className="eyebrow">What We Do</span>
+        <Reveal delay={0.06}>
+          <h2 className="t-display-md mt-5 max-w-[18ch]">
+            One studio. Every format you need.
+          </h2>
+        </Reveal>
+        <HairRule className="mt-8" />
+
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((s, i) => (
+            <Reveal key={s.id} delay={Math.min(i, 6) * 0.06}>
               <article
-                key={s.id}
                 onMouseEnter={() => setHover(s.id)}
                 onMouseLeave={() => setHover((h) => (h === s.id ? null : h))}
-                className="group glass-panel relative flex h-[330px] w-[78vw] shrink-0 snap-center flex-col justify-between rounded-xl p-7 transition-colors duration-500 hover:border-white/25 sm:w-[380px]"
+                className="group relative flex h-[280px] flex-col justify-between overflow-hidden rounded-xl border border-white/10 p-7 transition-colors duration-500 hover:border-white/25"
               >
-                <div className="flex items-start justify-between">
+                {/* real work still, dimmed — ties the abstract capability back to actual footage */}
+                <img
+                  src={s.image}
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 h-full w-full object-cover opacity-[0.16] grayscale transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:opacity-30 group-hover:grayscale-0"
+                />
+                <div
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#050508] via-[#050508]/75 to-[#050508]/35"
+                  aria-hidden="true"
+                />
+
+                <div className="relative z-10 flex items-start justify-between">
                   <Glyph kind={s.glyph} active={hover === s.id} />
                   <span className="t-label tnum text-faint">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                 </div>
 
-                <div>
+                <div className="relative z-10">
                   <h3 className="t-display-sm">{s.title}</h3>
                   <p className="body-copy mt-3">{s.desc}</p>
                 </div>
 
                 <span
-                  className="absolute inset-x-7 bottom-0 h-px origin-left scale-x-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100"
+                  className="absolute inset-x-7 bottom-0 z-10 h-px origin-left scale-x-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100"
                   style={{ background: 'linear-gradient(90deg, #7B4DFF, #22D3EE)' }}
                 />
               </article>
-            ))}
-          </motion.div>
+            </Reveal>
+          ))}
+        </div>
 
-          <div className="shell mt-10">
+        <Reveal delay={0.2}>
+          <div className="mt-10">
             <PageLink
               to="/contact"
               className="focus-ring group inline-flex items-center gap-3 text-sm text-cyan-soft transition-opacity hover:opacity-75"
             >
-              Custom scope? Let's talk rates.
+              Custom scope? Let's talk.
               <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
             </PageLink>
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   )

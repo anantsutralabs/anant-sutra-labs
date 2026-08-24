@@ -15,7 +15,7 @@ const vert = /* glsl */ `
     vUv = uv;
     vec3 p = position;
 
-    // barrel: push the centre toward camera, edges away
+    // barrel: push the center toward camera, edges away
     float d = 1.0 - (uv.x - 0.5) * (uv.x - 0.5) * 4.0;
     p.z += d * (0.55 + uBend * 2.4) * 0.34;
 
@@ -54,18 +54,20 @@ const frag = /* glsl */ `
     col.g = texture2D(uMap, uv).g;
     col.b = texture2D(uMap, uv + vec2(-s, 0.0)).b;
 
-    // desaturate → colour on hover
+    // a light lift toward full color on hover — resting state stays close
+    // to true color rather than reading as washed out against the black scene
     float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
-    col = mix(vec3(lum) * 0.88, col, uHover * (1.0 - uGrey) + (1.0 - uGrey) * 0.44);
+    col = mix(vec3(lum) * 0.96, col, uHover * (1.0 - uGrey) + (1.0 - uGrey) * 0.86);
 
     // gradient rim ignites on hover
     float edge = 1.0 - smoothstep(0.0, 0.045, min(min(vUv.x, 1.0 - vUv.x), min(vUv.y, 1.0 - vUv.y)));
     vec3 rim = mix(uRimA, uRimB, vUv.x + sin(uTime * 0.6) * 0.12);
     col += rim * edge * uHover * 1.5;
 
-    // vignette keeps the plane sitting in the dark
+    // subtle vignette only — the plane should read as a solid image, not a
+    // faded one, so the floor stays high
     float vig = smoothstep(1.15, 0.35, length(vUv - 0.5));
-    col *= 0.68 + vig * 0.32;
+    col *= 0.88 + vig * 0.12;
 
     gl_FragColor = vec4(col, uFade);
   }

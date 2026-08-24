@@ -16,6 +16,14 @@ export const frameState = {
   warp: 0,
   /** 0..1 progress of the current page's scroll */
   progress: 0,
+  /**
+   * 0..1 progress through the portfolio scroll runway specifically — NOT
+   * the whole page. The arc used to read `progress` directly, which mixes
+   * in the header and footer text block's height, so the arc's position
+   * drifted out of sync with what was actually on screen. Portfolio.tsx
+   * writes this from the runway element's own scroll range.
+   */
+  arcProgress: 0,
   /** route the camera is flying toward */
   route: '/',
   /** 0..1 camera flight progress; 1 === settled */

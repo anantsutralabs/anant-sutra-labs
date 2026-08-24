@@ -4,6 +4,7 @@ import { Reveal, HairRule } from '../components/Reveal'
 import { Magnetic } from '../components/Magnetic'
 import { site } from '../data/site'
 import { services } from '../data/services'
+import { InstagramIcon, WhatsAppIcon, LinkedInIcon } from '../components/SocialIcon'
 
 /** Hairline-underline field with a gradient underline that animates on focus. */
 function Field({
@@ -160,37 +161,61 @@ export default function Contact() {
 
         {/* details */}
         <Reveal delay={0.12}>
-          <div className="flex flex-col gap-9">
-            <div>
-              <span className="t-label-sm text-faint">Phone</span>
-              <div className="mt-3 flex flex-col gap-1.5">
-                {site.phones.map((p) => (
-                  <a
-                    key={p}
-                    href={`tel:${p.replace(/\s/g, '')}`}
-                    className="focus-ring text-[15px] transition-colors duration-300 hover:text-cyan-soft"
-                  >
-                    {p}
-                  </a>
-                ))}
-              </div>
-            </div>
+          <div className="flex flex-col gap-5">
+            <a
+              href={`https://wa.me/${site.whatsapp.number}`}
+              target="_blank"
+              rel="noreferrer"
+              className="focus-ring group flex items-center gap-4 rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-[#25D366] transition-colors group-hover:bg-white/10">
+                <WhatsAppIcon />
+              </span>
+              <span>
+                <span className="t-label-sm block text-faint">WhatsApp</span>
+                <span className="text-[15px]">Message on WhatsApp</span>
+              </span>
+            </a>
 
-            <div className="hair" />
+            <a
+              href={`tel:${site.phone.replace(/\s/g, '')}`}
+              className="focus-ring flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
+            >
+              <span>
+                <span className="t-label-sm block text-faint">Phone</span>
+                <span className="text-[15px]">{site.phone}</span>
+              </span>
+            </a>
 
-            <div>
-              <span className="t-label-sm text-faint">Instagram</span>
-              <a
-                href={site.instagram.url}
-                target="_blank"
-                rel="noreferrer"
-                className="focus-ring mt-3 block text-[15px] transition-colors duration-300 hover:text-cyan-soft"
-              >
-                {site.instagram.handle} ↗
-              </a>
-            </div>
+            <a
+              href={site.instagram.url}
+              target="_blank"
+              rel="noreferrer"
+              className="focus-ring group flex items-center gap-4 rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-cyan-soft transition-colors group-hover:bg-white/10">
+                <InstagramIcon />
+              </span>
+              <span>
+                <span className="t-label-sm block text-faint">Instagram</span>
+                <span className="text-[15px]">{site.instagram.handle}</span>
+              </span>
+            </a>
 
-            <div className="hair" />
+            <a
+              href={site.linkedin.url}
+              target="_blank"
+              rel="noreferrer"
+              className="focus-ring group flex items-center gap-4 rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-violet-soft transition-colors group-hover:bg-white/10">
+                <LinkedInIcon />
+              </span>
+              <span>
+                <span className="t-label-sm block text-faint">LinkedIn</span>
+                <span className="text-[15px]">Naveen Sharma</span>
+              </span>
+            </a>
 
             <div>
               <span className="t-label-sm text-faint">Email</span>

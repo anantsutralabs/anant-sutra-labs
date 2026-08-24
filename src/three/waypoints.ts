@@ -20,7 +20,7 @@ export type Waypoint = {
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 
 export const waypoints: Record<string, Waypoint> = {
-  // Hero — the glass mark is centred and dominant.
+  // Hero — the glass mark is centered and dominant.
   '/': {
     position: V(0, 0, 6.2),
     target: V(0, 0, 0),

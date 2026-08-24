@@ -107,7 +107,7 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
             <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="t-display-md">{item.title}</h2>
-                <p className="body-copy mt-2 max-w-[52ch]">{item.blurb}</p>
+                <p className="body-copy mt-2 max-w-[58ch]">{item.synopsis ?? item.blurb}</p>
                 <p className="t-label-sm mt-2 text-faint">{item.role}</p>
               </div>
               <div className="t-label flex shrink-0 items-center gap-4">
@@ -117,13 +117,29 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
               </div>
             </div>
 
-            <button
-              onClick={onClose}
-              className="focus-ring t-label absolute -top-12 right-0 flex items-center gap-2 text-white/60 transition-colors hover:text-white"
-            >
-              Close <span aria-hidden="true">×</span>
-            </button>
+            {item.quote && (
+              <blockquote className="mt-6 max-w-[52ch] border-l-2 border-violet-soft/40 pl-5">
+                <p className="text-lg italic text-white/85">"{item.quote.text}"</p>
+                <cite className="t-label-sm mt-2 block not-italic text-faint">
+                  — {item.quote.from}
+                </cite>
+              </blockquote>
+            )}
           </motion.div>
+
+          {/*
+            Pinned to the viewport, not the panel. It was previously
+            positioned `-top-12` relative to the content panel — on mobile,
+            or with a tall/portrait video, that put it above y=0: present in
+            the DOM but physically off-screen and untappable.
+          */}
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="focus-ring fixed right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 text-white/80 backdrop-blur transition-colors hover:bg-black/70 hover:text-white md:right-6 md:top-6"
+          >
+            <span aria-hidden="true" className="text-2xl leading-none">×</span>
+          </button>
         </motion.div>
       )}
     </AnimatePresence>

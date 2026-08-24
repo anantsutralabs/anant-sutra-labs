@@ -8,12 +8,12 @@ import { frameState } from '../lib/frameState'
 import { damp, clamp } from '../lib/easing'
 import { waypoints } from './waypoints'
 
-const CENTRE = waypoints['/portfolio'].target
+const CENTER = waypoints['/portfolio'].target
 const RADIUS = 8.0
 /** spacing must exceed the widest card (2.36:1 scope) so frames never overlap */
 const SPREAD = 0.415 // radians between cards
 /** Cards beyond this angle fade out. Without it the arc closes on itself once
- *  the catalogue passes ~2π/SPREAD entries and the last card lands on top of
+ *  the catalog passes ~2π/SPREAD entries and the last card lands on top of
  *  the first. */
 const VISIBLE_ARC = 1.45
 const FADE_FROM = 0.95
@@ -64,7 +64,7 @@ export function WorkArc({
 
     // page scroll → arc rotation
     const span = Math.max(1, items.length - 1)
-    scrollT.current = damp(scrollT.current, frameState.progress * span, 5, delta)
+    scrollT.current = damp(scrollT.current, frameState.arcProgress * span, 5, delta)
 
     const target = new Map<string, number>()
     items.forEach((it, i) => target.set(it.id, (i - scrollT.current) * SPREAD))
@@ -84,11 +84,11 @@ export function WorkArc({
       const vis = damp(visible.current.get(id) ?? 0, isIn ? edge : 0, 7, delta)
       visible.current.set(id, vis)
 
-      // place on the arc, facing the camera at the centre
+      // place on the arc, facing the camera at the center
       child.position.set(
-        CENTRE.x + Math.sin(a) * RADIUS,
-        CENTRE.y + ARC_Y + Math.sin(a * 1.7) * 0.18,
-        CENTRE.z - RADIUS + Math.cos(a) * RADIUS,
+        CENTER.x + Math.sin(a) * RADIUS,
+        CENTER.y + ARC_Y + Math.sin(a * 1.7) * 0.18,
+        CENTER.z - RADIUS + Math.cos(a) * RADIUS,
       )
       child.rotation.y = -a
 

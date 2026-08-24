@@ -83,7 +83,7 @@ export function Particles({ count }: { count: number }) {
       scale[i] = 0.28 + Math.pow(Math.random(), 3.0) * 1.25
       speed[i] = 0.4 + Math.random() * 1.5
 
-      // mostly dim white dust; colour is the exception, not the rule
+      // mostly dim white dust; color is the exception, not the rule
       const r = Math.random()
       c.copy(r < 0.20 ? VIOLET : r < 0.34 ? CYAN : WHITE)
       c.lerp(WHITE, 0.25)

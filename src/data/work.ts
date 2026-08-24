@@ -33,6 +33,11 @@ export type WorkItem = {
   /** development artwork, shown in place of a film */
   stills?: string[]
   status?: string
+  /** longer synopsis, shown instead of blurb when present — used for the
+   *  in-development entry, where there's no film to speak for itself */
+  synopsis?: string
+  /** attributed pull-quote, sourced verbatim from the project bible */
+  quote?: { text: string; from: string }
 }
 
 const v = (id: string) => `/work/video/${id}.mp4`
@@ -57,10 +62,20 @@ export const work: WorkItem[] = [
     title: 'The Moon Parcel',
     category: 'Short Film',
     role: SOLO,
-    blurb:
-      'An original short film in development — screenplay locked, design bible and character work complete.',
-    aspect: 1200 / 760,
-    duration: 'In development',
+    blurb: 'A sky courier who can\'t leave anything unfinished takes on an impossible delivery.',
+    synopsis:
+      'High above the clouds, a city of floating islands runs on rope bridges, airship lanes ' +
+      'and parcel wires. Nibo, its most devoted courier, can\'t leave anything unfinished — ' +
+      'until a bunny named Joe brings in a parcel addressed to her late father: destination, ' +
+      'the Moon. Nibo promises to deliver it. What follows is a string of failed inventions, ' +
+      'until an old memory box reveals the parcel he\'s really been chasing was never someone ' +
+      'else\'s. It was his own.',
+    quote: {
+      text: 'Sometimes we think we\'re delivering a package… when we\'re really carrying a promise.',
+      from: 'Granny Hazel',
+    },
+    aspect: 1400 / 787,
+    duration: '5 min · In development',
     status: 'In development',
     poster: '/work/poster/the-moon-parcel.jpg',
     stills: [1, 2, 3, 4, 5].map((n) => `/work/stills/moon-parcel-0${n}.jpg`),
@@ -79,7 +94,7 @@ export const work: WorkItem[] = [
   make('royal-enfield', 'Royal Enfield Commercial', 'Commercial', 'Anamorphic motorcycle film — dust, chrome and long light.',        2212, 936,  '0:31', true),
   make('cheetos',       'Cheetos Commercial',       'Commercial', 'High-energy snack spot with hard-cut product beats.',              1920, 1080, '0:31', true),
   make('hell',          'Hell Commercial',          'Commercial', 'Energy-drink commercial built on contrast and heat.',              1920, 1080, '0:43', true),
-  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and colour — a classic beverage build.',       1920, 1080, '0:28', true),
+  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and color — a classic beverage build.',       1920, 1080, '0:28', true),
   make('pringles',      'Pringles Commercial',      'Commercial', 'Stacked-product choreography and crisp macro texture.',            1920, 1080, '0:34', true),
   make('mac',           'MAC Commercial',           'Commercial', 'Beauty commercial — specular highlights and pigment.',             1920, 1080, '0:34', true),
   make('paper-boat',    'Paper Boat Commercial',    'Commercial', 'Nostalgia-led brand film with a warm, soft palette.',              1920, 1080, '0:17', true),
