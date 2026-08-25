@@ -110,7 +110,9 @@ type SubmitState = 'idle' | 'sending' | 'sent' | 'error'
 export default function Contact() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [project, setProject] = useState(services.find((s) => s.id === 'video')!.title)
+  // no default — an unselected placeholder forces an actual choice rather
+  // than silently submitting whichever service happened to be first
+  const [project, setProject] = useState('')
   const [message, setMessage] = useState('')
   const [refImage, setRefImage] = useState<File | null>(null)
   const [refVideo, setRefVideo] = useState<File | null>(null)
@@ -211,7 +213,10 @@ export default function Contact() {
                 <Field label="Email" name="email" type="email" required value={email} onChange={setEmail} />
               </div>
 
-              <Field label="Project type" name="project" as="select" value={project} onChange={setProject}>
+              <Field label="Project type" name="project" as="select" required value={project} onChange={setProject}>
+                <option value="" disabled hidden className="text-faint">
+                  Select a project type
+                </option>
                 {services.map((s) => (
                   <option key={s.id} value={s.title} className="bg-ink2">
                     {s.title}
