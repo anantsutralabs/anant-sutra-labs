@@ -185,6 +185,13 @@
   .mask-line { display: block; overflow: hidden; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
+
+  /* Keeps text legible where the persistent WebGL glass mark glows behind
+     the DOM — a plain dark scrim can't track the mark's 3D position, so
+     the text itself carries a soft dark halo instead. */
+  .text-shadow-legible {
+    text-shadow: 0 2px 20px rgba(5, 5, 8, 0.9), 0 1px 3px rgba(5, 5, 8, 0.95);
+  }
 }
 
 /* Native <track> subtitle cues in the lightbox player — matches the site's

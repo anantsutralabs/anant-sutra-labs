@@ -82,36 +82,49 @@ export default function Home() {
       </section>
 
       {/* ── CAPABILITY STATS ─────────────────────────────────── */}
-      <section className="shell pt-24 md:pt-36">
-        <Reveal><span className="eyebrow">Why Anant Sutra</span></Reveal>
-        <Reveal delay={0.06}>
-          <h2 className="t-display-md mt-5 max-w-[18ch]">Built for how briefs actually move.</h2>
-        </Reveal>
-        <HairRule className="mt-8" />
+      <section className="relative pt-24 md:pt-36">
+        {/* the glass mark drifts through this section too — same fix as the
+            hero: a dark scrim sits between the canvas and the text instead
+            of relying on text-shadow alone, which wasn't enough against the
+            mark's brightest core */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(60% 75% at 74% 52%, rgba(5,5,8,0.82), transparent 72%), linear-gradient(100deg, transparent 0%, rgba(5,5,8,0.35) 55%, rgba(5,5,8,0.55) 100%)',
+          }}
+        />
+        <div className="shell relative z-10">
+          <Reveal><span className="eyebrow">Why Anant Sutra</span></Reveal>
+          <Reveal delay={0.06}>
+            <h2 className="t-display-md mt-5 max-w-[18ch]">Built for how briefs actually move.</h2>
+          </Reveal>
+          <HairRule className="mt-8" />
 
-        <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          {capabilityStats.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.08}>
-              <article>
-                <span className="t-label tnum text-violet-soft">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 className="t-display-sm mt-4">{s.title}</h3>
-                <p className="body-copy mt-3 text-sm">{s.desc}</p>
-              </article>
-            </Reveal>
-          ))}
+          <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+            {capabilityStats.map((s, i) => (
+              <Reveal key={s.title} delay={i * 0.08}>
+                <article className="text-shadow-legible">
+                  <span className="t-label tnum text-violet-soft">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="t-display-sm mt-4">{s.title}</h3>
+                  <p className="body-copy mt-3 text-sm">{s.desc}</p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.2}>
+            <PageLink
+              to="/about"
+              className="focus-ring t-label group mt-14 inline-flex items-center gap-3 text-white/70 transition-colors hover:text-white"
+            >
+              About the studio
+              <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
+            </PageLink>
+          </Reveal>
         </div>
-
-        <Reveal delay={0.2}>
-          <PageLink
-            to="/about"
-            className="focus-ring t-label group mt-14 inline-flex items-center gap-3 text-white/70 transition-colors hover:text-white"
-          >
-            About the studio
-            <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
-          </PageLink>
-        </Reveal>
       </section>
 
       {/* ── FEATURED WORK STRIP ──────────────────────────────── */}

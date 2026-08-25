@@ -26,6 +26,7 @@ function Icon({ kind }: { kind: 'play' | 'pause' | 'expand' | 'compress' | 'cc' 
 }
 
 export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: () => void }) {
+  const portrait = !!item && item.aspect < 1
   const video = useRef<HTMLVideoElement>(null)
   const frame = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
@@ -117,7 +118,7 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
           // pointer events on #root while the portfolio's 3D arc is active —
           // without it, every control here (including Close) was unclickable.
           data-ui
-          className="fixed inset-0 z-[85] flex items-center justify-center p-5 md:p-10"
+          className="fixed inset-0 z-[85] flex justify-center overflow-y-auto p-5 [align-items:safe_center] md:p-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -137,12 +138,17 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
             exit={{ y: 18, scale: 0.98, opacity: 0 }}
             transition={{ duration: 0.62, ease: [0.16, 1, 0.3, 1] }}
           >
+            <div className={portrait ? 'flex justify-center' : ''}>
             <div
               ref={frame}
               onMouseMove={wake}
               onClick={() => item.video && togglePlay()}
-              className="group relative overflow-hidden rounded-xl border border-white/10 bg-black"
-              style={{ aspectRatio: String(item.aspect) }}
+              className={`group relative overflow-hidden rounded-xl border border-white/10 bg-black ${portrait ? '' : 'w-full'}`}
+              style={
+                portrait
+                  ? { aspectRatio: String(item.aspect), height: 'min(76svh, 820px)', maxWidth: '100%' }
+                  : { aspectRatio: String(item.aspect) }
+              }
             >
               {item.video ? (
                 <>
@@ -280,6 +286,7 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
                   </motion.div>
                 </>
               )}
+            </div>
             </div>
 
             {/* development boards stand in for a film that does not exist yet */}
