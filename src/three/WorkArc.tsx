@@ -66,8 +66,13 @@ export function WorkArc({
     const span = Math.max(1, items.length - 1)
     scrollT.current = damp(scrollT.current, frameState.arcProgress * span, 5, delta)
 
+    // A thin category (e.g. two Fashion films) spread across the same
+    // SPREAD used for the full 25-film catalog reads as an empty arc with
+    // two cards lost in it — tighten the spacing when there's little to show.
+    const spread = items.length <= 2 ? SPREAD * 0.55 : items.length <= 4 ? SPREAD * 0.75 : SPREAD
+
     const target = new Map<string, number>()
-    items.forEach((it, i) => target.set(it.id, (i - scrollT.current) * SPREAD))
+    items.forEach((it, i) => target.set(it.id, (i - scrollT.current) * spread))
 
     group.current.children.forEach((child) => {
       const id = child.userData.id as string

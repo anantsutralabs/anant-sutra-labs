@@ -67,7 +67,10 @@ export function ButtonLink({
   }
 
   return (
-    <PageLink to={to} className={`${base} border border-white/20 text-white hover:border-white/50`}>
+    <PageLink
+      to={to}
+      className={`${base} border border-white/20 bg-white/5 text-white backdrop-blur-md hover:border-white/50 hover:bg-white/10`}
+    >
       <span className="relative z-10">{children}</span>
       <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-1">→</span>
     </PageLink>

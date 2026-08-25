@@ -19,6 +19,7 @@ const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
 const Portfolio = lazy(() => import('./pages/Portfolio'))
 const Contact = lazy(() => import('./pages/Contact'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 /** Keeps frameState.route in sync however navigation happened. */
 function RouteSync() {
@@ -72,6 +73,14 @@ function Shell({
 
   return (
     <>
+      {/* first focusable element on the page — invisible until tabbed to,
+          so keyboard users can jump straight past the nav to real content */}
+      <a
+        href="#main"
+        className="focus-ring fixed left-4 top-4 z-[95] -translate-y-24 rounded-full bg-white px-5 py-3 text-[13px] font-medium text-ink transition-transform focus:translate-y-0"
+      >
+        Skip to content
+      </a>
       <Nav />
       <main id="main">
         <Suspense key={location.pathname} fallback={<div className="min-h-screen" />}>
@@ -80,7 +89,7 @@ function Shell({
             <Route path="/about" element={<About />} />
             <Route path="/portfolio" element={<Portfolio onOpen={setOpenItem} openItem={openItem} />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="*" element={<Home />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </main>

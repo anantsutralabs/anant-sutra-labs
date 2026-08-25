@@ -12,12 +12,15 @@ export default function Home() {
     <>
       {/* ── HERO ─────────────────────────────────────────────── */}
       <section className="relative flex min-h-[100svh] flex-col justify-center">
-        {/* keeps the headline legible where it crosses the glass mark */}
+        {/* keeps the headline legible where it crosses the glass mark — a
+            second, tighter radial sits under the mark's own position, since
+            the mark is bright enough that the linear scrim alone still let
+            text go soft where the two directly overlapped */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'linear-gradient(100deg, rgba(5,5,8,0.92) 0%, rgba(5,5,8,0.72) 32%, rgba(5,5,8,0.18) 58%, rgba(5,5,8,0) 78%)',
+              'linear-gradient(100deg, rgba(5,5,8,0.94) 0%, rgba(5,5,8,0.8) 30%, rgba(5,5,8,0.32) 55%, rgba(5,5,8,0.05) 78%), radial-gradient(46% 60% at 68% 46%, rgba(5,5,8,0.55), transparent 70%)',
           }}
         />
         <div className="relative z-10 shell pt-24">
@@ -81,7 +84,10 @@ export default function Home() {
       {/* ── CAPABILITY STATS ─────────────────────────────────── */}
       <section className="shell pt-24 md:pt-36">
         <Reveal><span className="eyebrow">Why Anant Sutra</span></Reveal>
-        <HairRule className="mt-6" />
+        <Reveal delay={0.06}>
+          <h2 className="t-display-md mt-5 max-w-[18ch]">Built for how briefs actually move.</h2>
+        </Reveal>
+        <HairRule className="mt-8" />
 
         <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
           {capabilityStats.map((s, i) => (
@@ -111,18 +117,23 @@ export default function Home() {
       {/* ── FEATURED WORK STRIP ──────────────────────────────── */}
       <section className="shell pt-28 md:pt-40">
         <div className="flex items-end justify-between gap-6">
-          <Reveal><span className="eyebrow">Selected Work</span></Reveal>
+          <div>
+            <Reveal><span className="eyebrow">Selected Work</span></Reveal>
+            <Reveal delay={0.06}>
+              <h2 className="t-display-md mt-5 max-w-[16ch]">The work that gets referenced most.</h2>
+            </Reveal>
+          </div>
           <Reveal delay={0.1}>
             <PageLink
               to="/portfolio"
-              className="focus-ring t-label group flex items-center gap-3 text-white/60 transition-colors hover:text-white"
+              className="focus-ring t-label group flex shrink-0 items-center gap-3 pb-1 text-white/60 transition-colors hover:text-white"
             >
               All work
               <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
             </PageLink>
           </Reveal>
         </div>
-        <HairRule className="mt-6" />
+        <HairRule className="mt-8" />
 
         <div className="mt-10 grid gap-7 md:grid-cols-3">
           {featured.map((item, i) => {
@@ -179,12 +190,14 @@ export default function Home() {
         <HairRule />
         <Reveal delay={0.05}>
           <PageLink to="/contact" className="focus-ring group block py-14 md:py-20">
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <p className="t-display-lg">Have a project in mind?</p>
-              <span className="t-label flex shrink-0 items-center gap-3 pb-2 text-white/60 transition-colors group-hover:text-white">
-                Start a conversation
-                <span className="transition-transform duration-500 group-hover:translate-x-1.5">→</span>
-              </span>
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <span className="t-label text-white/50">Have a project in mind?</span>
+                <p className="t-display-lg mt-3 flex items-center gap-4">
+                  Start a conversation
+                  <span className="transition-transform duration-500 group-hover:translate-x-3">→</span>
+                </p>
+              </div>
             </div>
           </PageLink>
         </Reveal>

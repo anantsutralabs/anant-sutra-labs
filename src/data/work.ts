@@ -38,6 +38,9 @@ export type WorkItem = {
   synopsis?: string
   /** attributed pull-quote, sourced verbatim from the project bible */
   quote?: { text: string; from: string }
+  /** English WebVTT captions — set only for films whose dialogue isn't
+   *  English, so an international viewer isn't lost */
+  captions?: string
 }
 
 const v = (id: string) => `/work/video/${id}.mp4`

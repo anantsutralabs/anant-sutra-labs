@@ -4,7 +4,7 @@ import { Reveal, HairRule } from '../components/Reveal'
 import { Magnetic } from '../components/Magnetic'
 import { site } from '../data/site'
 import { services } from '../data/services'
-import { InstagramIcon, WhatsAppIcon, LinkedInIcon } from '../components/SocialIcon'
+import { InstagramIcon, WhatsAppIcon, LinkedInIcon, PhoneIcon } from '../components/SocialIcon'
 
 /** Hairline-underline field with a gradient underline that animates on focus. */
 function Field({
@@ -71,19 +71,60 @@ function Field({
   )
 }
 
+/** Optional attachment picker. Styled like Field but a real file input can't
+ *  share its underline-only look, so it gets its own compact treatment. */
+function FileField({
+  label,
+  accept,
+  file,
+  onChange,
+}: {
+  label: string
+  accept: string
+  file: File | null
+  onChange: (f: File | null) => void
+}) {
+  const id = `file-${accept.replace(/[^a-z]/gi, '')}`
+  return (
+    <label htmlFor={id} className="group relative block cursor-pointer">
+      <span className="t-label-sm text-faint">{label}</span>
+      <div className="relative mt-1 flex items-center justify-between border-b border-white/15 py-3.5 text-[15px] transition-colors duration-500">
+        <span className={file ? 'text-white' : 'text-faint'}>
+          {file ? file.name : 'Choose file'}
+        </span>
+        <span className="t-label-sm text-cyan-soft">{file ? 'Change' : 'Browse'}</span>
+      </div>
+      <input
+        id={id}
+        type="file"
+        accept={accept}
+        className="sr-only"
+        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+      />
+    </label>
+  )
+}
+
 export default function Contact() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [project, setProject] = useState(services.find((s) => s.id === 'video')!.title)
   const [message, setMessage] = useState('')
+  const [refImage, setRefImage] = useState<File | null>(null)
+  const [refVideo, setRefVideo] = useState<File | null>(null)
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    const subject = `New project enquiry — ${project}`
+    const subject = `New project inquiry — ${project}`
+    const attachmentNote = [
+      refImage && `Reference image to attach: ${refImage.name}`,
+      refVideo && `Reference video to attach: ${refVideo.name}`,
+    ].filter(Boolean)
     const body = [
       `Name: ${name}`,
       `Email: ${email}`,
       `Project type: ${project}`,
+      ...attachmentNote,
       '',
       message,
     ].join('\n')
@@ -129,6 +170,21 @@ export default function Contact() {
               <option value="Custom scope" className="bg-ink2">Custom scope</option>
             </Field>
 
+            <div className="grid gap-9 sm:grid-cols-2">
+              <FileField
+                label="Reference image (optional)"
+                accept="image/*"
+                file={refImage}
+                onChange={setRefImage}
+              />
+              <FileField
+                label="Reference video (optional)"
+                accept="video/*"
+                file={refVideo}
+                onChange={setRefVideo}
+              />
+            </div>
+
             <Field
               label="Tell us about the project"
               name="message"
@@ -148,12 +204,13 @@ export default function Contact() {
                     className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
                     style={{ background: 'linear-gradient(100deg, #B79CFF, #8FEAF5)' }}
                   />
-                  <span className="relative z-10">Send enquiry</span>
+                  <span className="relative z-10">Send inquiry</span>
                   <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-1">→</span>
                 </button>
               </Magnetic>
               <p className="mt-4 text-[11px] text-faint">
-                Opens your email client with the brief pre-filled.
+                Opens your email client with the brief pre-filled
+                {(refImage || refVideo) && " — attach the file(s) you selected there, mail links can't carry them automatically"}.
               </p>
             </div>
           </form>
@@ -179,8 +236,11 @@ export default function Contact() {
 
             <a
               href={`tel:${site.phone.replace(/\s/g, '')}`}
-              className="focus-ring flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
+              className="focus-ring group flex items-center gap-4 rounded-xl border border-white/10 px-5 py-4 transition-colors duration-300 hover:border-white/25"
             >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-violet-soft transition-colors group-hover:bg-white/10">
+                <PhoneIcon />
+              </span>
               <span>
                 <span className="t-label-sm block text-faint">Phone</span>
                 <span className="text-[15px]">{site.phone}</span>

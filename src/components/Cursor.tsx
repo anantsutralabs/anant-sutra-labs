@@ -84,7 +84,11 @@ export function Cursor() {
         className="absolute left-0 top-0 h-8 w-8 rounded-full border"
         style={{ borderColor: 'rgba(255,255,255,0.55)', mixBlendMode: 'difference' }}
       />
-      <div ref={dot} className="absolute left-0 top-0 h-1 w-1 rounded-full bg-white" />
+      <div
+        ref={dot}
+        className="absolute left-0 top-0 h-1 w-1 rounded-full bg-white"
+        style={{ mixBlendMode: 'difference' }}
+      />
     </div>
   )
 }

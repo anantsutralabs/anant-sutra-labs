@@ -30,6 +30,19 @@ export function WhatsAppIcon({ className = 'h-5 w-5' }: IconProps) {
   )
 }
 
+export function PhoneIcon({ className = 'h-5 w-5' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path
+        d="M6.6 3.5h2.3c.4 0 .8.3.9.7l.9 3a1 1 0 0 1-.3 1L8.9 9.7a13.5 13.5 0 0 0 5.4 5.4l1.5-1.5a1 1 0 0 1 1-.3l3 .9c.4.1.7.5.7.9v2.3a1.5 1.5 0 0 1-1.6 1.5C11.9 18.5 5.5 12.1 5.1 5.1A1.5 1.5 0 0 1 6.6 3.5Z"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 export function LinkedInIcon({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">

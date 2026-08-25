@@ -1,5 +1,5 @@
 import { motion, type Variants } from 'framer-motion'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { device } from '../lib/device'
 
 /**
@@ -23,15 +23,22 @@ export function Reveal({
   y?: number
   className?: string
 }) {
+  const [settled, setSettled] = useState(false)
+
   if (device.reducedMotion) return <div className={className}>{children}</div>
 
   return (
     <motion.div
-      className={`overflow-hidden ${className}`}
+      // overflow-hidden is only needed while the entrance mask is live; once
+      // it settles (viewport is once:true, so this fires exactly once) it's
+      // dropped — otherwise it permanently clips anything inside that moves
+      // on hover, like a CTA arrow translating on :hover.
+      className={`${settled ? '' : 'overflow-hidden'} ${className}`}
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, margin: '-8% 0px' }}
       variants={outer}
+      onAnimationComplete={() => setSettled(true)}
     >
       <motion.div
         variants={{

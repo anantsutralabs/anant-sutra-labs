@@ -10,11 +10,18 @@ function fmt(t: number) {
 }
 
 /** Minimal line-icon set for the custom transport bar — matches the rest of the site. */
-function Icon({ kind }: { kind: 'play' | 'pause' | 'expand' | 'compress' }) {
+function Icon({ kind }: { kind: 'play' | 'pause' | 'expand' | 'compress' | 'cc' }) {
   const common = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   if (kind === 'play') return <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke="none" /></svg>
   if (kind === 'pause') return <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1" fill="currentColor" /><rect x="13.5" y="5" width="4" height="14" rx="1" fill="currentColor" /></svg>
   if (kind === 'expand') return <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" {...common} /></svg>
+  if (kind === 'cc') return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <rect x="3" y="5.5" width="18" height="13" rx="2.2" {...common} />
+      <path d="M9.2 10.3c-.5-.5-1.2-.5-1.8-.5-1.2 0-2 .8-2 2.2s.8 2.2 2 2.2c.6 0 1.3 0 1.8-.5" {...common} />
+      <path d="M16.6 10.3c-.5-.5-1.2-.5-1.8-.5-1.2 0-2 .8-2 2.2s.8 2.2 2 2.2c.6 0 1.3 0 1.8-.5" {...common} />
+    </svg>
+  )
   return <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true"><path d="M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5" {...common} /></svg>
 }
 
@@ -31,6 +38,9 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
   const [duration, setDuration] = useState(0)
   const [fullscreen, setFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  // on by default when captions exist — the whole point is that an
+  // international viewer shouldn't have to hunt for a toggle
+  const [captionsOn, setCaptionsOn] = useState(true)
 
   useEffect(() => {
     if (!item) return
@@ -39,6 +49,7 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
     setPlaying(false)
     setProgress(0)
     setTime(0)
+    setCaptionsOn(true)
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -66,6 +77,12 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
     document.addEventListener('fullscreenchange', onFsChange)
     return () => document.removeEventListener('fullscreenchange', onFsChange)
   }, [])
+
+  // HTMLTrackElement's mode isn't a React prop — synced imperatively
+  useEffect(() => {
+    const track = video.current?.textTracks?.[0]
+    if (track) track.mode = captionsOn ? 'showing' : 'hidden'
+  }, [captionsOn, item])
 
   const wake = () => {
     setShowControls(true)
@@ -128,24 +145,50 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
               style={{ aspectRatio: String(item.aspect) }}
             >
               {item.video ? (
-                <video
-                  ref={video}
-                  key={item.id}
-                  src={item.video}
-                  poster={item.poster}
-                  playsInline
-                  preload="metadata"
-                  className="h-full w-full object-contain"
-                  onPlay={() => { setPlaying(true); wake() }}
-                  onPause={() => { setPlaying(false); setShowControls(true) }}
-                  onTimeUpdate={(e) => {
-                    const v = e.currentTarget
-                    setTime(v.currentTime)
-                    setProgress(v.duration ? v.currentTime / v.duration : 0)
-                  }}
-                  onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-                  onEnded={() => setShowControls(true)}
-                />
+                <>
+                  <video
+                    ref={video}
+                    key={item.id}
+                    src={item.video}
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-contain"
+                    onPlay={() => { setPlaying(true); wake() }}
+                    onPause={() => { setPlaying(false); setShowControls(true) }}
+                    onTimeUpdate={(e) => {
+                      const v = e.currentTarget
+                      setTime(v.currentTime)
+                      setProgress(v.duration ? v.currentTime / v.duration : 0)
+                    }}
+                    onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+                    onEnded={() => setShowControls(true)}
+                  >
+                    {item.captions && (
+                      <track
+                        kind="subtitles"
+                        srcLang="en"
+                        label="English"
+                        src={item.captions}
+                        default
+                      />
+                    )}
+                  </video>
+                  {/*
+                    Not the native `poster` attribute: some engines render it
+                    with cover-like behavior regardless of the video's own
+                    object-fit, which cropped the still for anything that
+                    isn't 16:9. This layer is under our own CSS and always
+                    matches the video's contain framing exactly.
+                  */}
+                  {!playing && (
+                    <img
+                      src={item.poster}
+                      alt=""
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+                    />
+                  )}
+                </>
               ) : (
                 <img
                   src={item.poster}
@@ -214,6 +257,17 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
                       </span>
 
                       <span className="flex-1" />
+
+                      {item.captions && (
+                        <button
+                          onClick={() => setCaptionsOn((c) => !c)}
+                          aria-label={captionsOn ? 'Turn off captions' : 'Turn on captions'}
+                          aria-pressed={captionsOn}
+                          className={`focus-ring flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/10 ${captionsOn ? 'text-cyan-soft' : ''}`}
+                        >
+                          <Icon kind="cc" />
+                        </button>
+                      )}
 
                       <button
                         onClick={toggleFullscreen}

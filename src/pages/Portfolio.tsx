@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SplitText } from '../components/SplitText'
@@ -77,18 +77,98 @@ export default function Portfolio({
     }
   }, [shown.length])
 
-  const step = (dir: 1 | -1) => {
-    const el = runwayRef.current
-    const lenis = getLenis()
-    if (!el || !lenis) return
-    const span = Math.max(1, shown.length - 1)
-    const rect = el.getBoundingClientRect()
-    const total = rect.height - window.innerHeight
-    const docTop = window.scrollY + rect.top
-    const targetIndex = Math.min(span, Math.max(0, Math.round(indexRef.current) + dir))
-    const targetY = docTop + (targetIndex / span) * total
-    lenis.scrollTo(targetY, { duration: 1.0 })
-  }
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      const el = runwayRef.current
+      const lenis = getLenis()
+      if (!el || !lenis) return
+      const span = Math.max(1, shown.length - 1)
+      const rect = el.getBoundingClientRect()
+      const total = rect.height - window.innerHeight
+      const docTop = window.scrollY + rect.top
+      const targetIndex = Math.min(span, Math.max(0, Math.round(indexRef.current) + dir))
+      const targetY = docTop + (targetIndex / span) * total
+      lenis.scrollTo(targetY, { duration: 1.0 })
+    },
+    [shown.length],
+  )
+
+  // arrow keys travel the arc — the accessibility gap that mattered most,
+  // since the whole gallery was previously mouse-only
+  useEffect(() => {
+    if (device.flatGallery) return
+    const onKey = (e: KeyboardEvent) => {
+      const typing = (e.target as HTMLElement)?.closest('input, textarea, select, [contenteditable]')
+      if (typing) return
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        step(1)
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        step(-1)
+      }
+    }
+    addEventListener('keydown', onKey)
+    return () => removeEventListener('keydown', onKey)
+  }, [step])
+
+  /**
+   * Click-and-drag / touch-drag pans the arc, the way you'd drag a reel —
+   * previously the only way to move it was a precise wheel/trackpad scroll,
+   * which read as fiddly. A small movement threshold keeps a plain click on
+   * a card working normally; past that threshold we treat it as a drag and
+   * swallow the click that would otherwise follow.
+   */
+  useEffect(() => {
+    if (device.flatGallery) return
+    let dragging = false
+    let dragged = false
+    let startX = 0
+    let startY = 0
+    let startScroll = 0
+    const THRESHOLD = 6
+
+    const onDown = (e: PointerEvent) => {
+      if ((e.target as Element)?.closest('[data-ui], header, footer, a, button')) return
+      dragging = true
+      dragged = false
+      startX = e.clientX
+      startY = e.clientY
+      startScroll = getLenis()?.scroll ?? window.scrollY
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return
+      const dx = e.clientX - startX
+      const dy = e.clientY - startY
+      if (!dragged && Math.hypot(dx, dy) > THRESHOLD) dragged = true
+      if (dragged) {
+        const delta = Math.abs(dy) > Math.abs(dx) ? dy : dx
+        getLenis()?.scrollTo(startScroll - delta, { immediate: true })
+      }
+    }
+    const onUp = () => {
+      dragging = false
+    }
+    // a drag that just released shouldn't also open whatever card is underneath
+    const onClickCapture = (e: MouseEvent) => {
+      if (dragged) {
+        e.stopPropagation()
+        e.preventDefault()
+        dragged = false
+      }
+    }
+
+    addEventListener('pointerdown', onDown, { passive: true })
+    addEventListener('pointermove', onMove, { passive: true })
+    addEventListener('pointerup', onUp, { passive: true })
+    addEventListener('click', onClickCapture, { capture: true })
+    return () => {
+      removeEventListener('pointerdown', onDown)
+      removeEventListener('pointermove', onMove)
+      removeEventListener('pointerup', onUp)
+      removeEventListener('click', onClickCapture, { capture: true })
+    }
+  }, [])
 
   return (
     <>
@@ -116,7 +196,7 @@ export default function Portfolio({
               <p className="body-copy mt-4 max-w-[46ch]">
                 {device.flatGallery
                   ? 'Tap any frame to play the film.'
-                  : 'Scroll, or use the arrows, to travel the arc. Click any frame to play the film.'}
+                  : 'Drag, scroll, or use the arrows to travel the arc. Click any frame to play the film.'}
               </p>
             </Reveal>
 
@@ -161,37 +241,54 @@ export default function Portfolio({
 
         {/* ── 3D ARC: this block is just scroll runway; the planes live in WebGL ── */}
         {!device.flatGallery && (
-          <div ref={runwayRef} style={{ height: scrollHeight }} aria-hidden="true">
-            <div className="sr-only">
-              {shown.map((w) => (
-                <button key={w.id} onClick={() => onOpen(w)}>
-                  {w.title}
-                </button>
-              ))}
-            </div>
-          </div>
+          <div ref={runwayRef} style={{ height: scrollHeight }} aria-hidden="true" />
         )}
       </div>
 
-      {/* arrow navigation — fixed to the viewport, always reachable */}
+      {/*
+        Real, visible-to-crawlers text for every film — the 3D arc renders
+        titles and posters as WebGL geometry, which is invisible to search
+        engines, AI crawlers and screen readers no matter how it's marked up.
+        This list is the actual content underneath that render; sr-only (not
+        aria-hidden) keeps it out of the sighted layout while staying fully
+        readable to everything else. It previously lived inside the runway's
+        own aria-hidden wrapper above, which hid it from assistive tech too —
+        the exact audience it was meant for.
+      */}
       {!device.flatGallery && (
-        <div data-ui className="pointer-events-none fixed inset-x-0 top-1/2 z-20 -translate-y-1/2">
-          <div className="shell flex items-center justify-between">
-            <button
-              onClick={() => step(-1)}
-              aria-label="Previous film"
-              className="focus-ring pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/70 backdrop-blur transition-colors hover:border-white/35 hover:text-white"
-            >
-              <span aria-hidden="true" className="text-xl">←</span>
-            </button>
-            <button
-              onClick={() => step(1)}
-              aria-label="Next film"
-              className="focus-ring pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/70 backdrop-blur transition-colors hover:border-white/35 hover:text-white"
-            >
-              <span aria-hidden="true" className="text-xl">→</span>
-            </button>
-          </div>
+        <ul className="sr-only">
+          {shown.map((w) => (
+            <li key={w.id}>
+              <button onClick={() => onOpen(w)}>
+                {w.title} — {w.category}. {w.blurb} {w.role}. {w.duration}.
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* arrow navigation — own lane at the bottom of the viewport, well
+          clear of the card row, so reaching for one never risks opening a
+          film by mistake */}
+      {!device.flatGallery && (
+        <div
+          data-ui
+          className="pointer-events-none fixed inset-x-0 bottom-6 z-20 flex justify-center gap-5 md:bottom-9"
+        >
+          <button
+            onClick={() => step(-1)}
+            aria-label="Previous film"
+            className="focus-ring pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/75 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
+          >
+            <span aria-hidden="true" className="text-2xl">←</span>
+          </button>
+          <button
+            onClick={() => step(1)}
+            aria-label="Next film"
+            className="focus-ring pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/75 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
+          >
+            <span aria-hidden="true" className="text-2xl">→</span>
+          </button>
         </div>
       )}
 
@@ -221,7 +318,7 @@ export default function Portfolio({
                     </span>
                   </div>
                   <div className="mt-3.5 flex items-baseline justify-between gap-4">
-                    <h3 className="text-[0.9rem] font-medium tracking-[-0.01em]">{item.title}</h3>
+                    <h2 className="text-[0.9rem] font-medium tracking-[-0.01em]">{item.title}</h2>
                     <span className="t-label-sm text-faint">
                       {item.category}
                     </span>

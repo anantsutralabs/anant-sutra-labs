@@ -39,6 +39,7 @@ export function SceneRoot({ arcItems, onOpen, openId, showArc }: SceneProps) {
   return (
     <div className="fixed inset-0 -z-10" aria-hidden="true">
       <Canvas
+        aria-label="Decorative animated background"
         dpr={device.dpr}
         gl={{
           antialias: false,

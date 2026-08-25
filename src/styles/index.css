@@ -98,13 +98,13 @@
   .t-display-xl {
     font-size: clamp(3rem, 8vw, 8rem);
     letter-spacing: -0.042em;
-    line-height: 0.88;
+    line-height: 0.94;
   }
 
   .t-display-lg {
     font-size: clamp(2.5rem, 5.4vw, 5rem);
     letter-spacing: -0.035em;
-    line-height: 0.94;
+    line-height: 1.02;
   }
 
   .t-display-md {
@@ -185,6 +185,16 @@
   .mask-line { display: block; overflow: hidden; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { scrollbar-width: none; }
+}
+
+/* Native <track> subtitle cues in the lightbox player — matches the site's
+   type instead of the browser default, and sits clear of the custom
+   transport bar rather than the bottom edge. */
+video::cue {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 1.05rem;
+  background: rgba(5, 5, 8, 0.72);
+  padding: 0.15em 0.5em;
 }
 
 @media (prefers-reduced-motion: reduce) {
