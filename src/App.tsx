@@ -17,6 +17,7 @@ import { work, type WorkItem, type Category } from './data/work'
 
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
+const Services = lazy(() => import('./pages/Services'))
 const Portfolio = lazy(() => import('./pages/Portfolio'))
 const Contact = lazy(() => import('./pages/Contact'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -87,6 +88,7 @@ function Shell({
           <Routes location={location}>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/portfolio" element={<Portfolio onOpen={setOpenItem} openItem={openItem} />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />

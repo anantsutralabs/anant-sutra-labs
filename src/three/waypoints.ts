@@ -36,6 +36,14 @@ export const waypoints: Record<string, Waypoint> = {
     logoPresence: 0,
     logoAnchor: V(19.5, -0.4, -15),
   },
+  // Elevated overlook — distinct from the other pockets, still no object.
+  '/services': {
+    position: V(-4.5, 9.6, 6.0),
+    target: V(-3.5, 9.9, -0.5),
+    via: V(2.5, 5.5, 9.0),
+    logoPresence: 0,
+    logoAnchor: V(-6.5, 10.4, -14),
+  },
   // The gallery. Camera sits inside the arc of work; nothing else in frame.
   '/portfolio': {
     position: V(-13.5, 0.4, 7.0),

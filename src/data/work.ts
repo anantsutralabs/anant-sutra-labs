@@ -7,6 +7,7 @@ export type Category =
   | 'Short Film'
   | 'Micro Drama'
   | 'Commercial'
+  | 'Real Estate'
   | 'Fashion'
 
 /** What Naveen actually did on the piece. Default assumes solo AI
@@ -107,6 +108,9 @@ export const work: WorkItem[] = [
   make('cupid',         'Cupid Commercial',         'Commercial', 'Vertical product spot built for Reels placement.',                 720,  1280, '0:15', true),
   make('jacket-review',  'Jacket Product Review',    'Commercial', 'Vertical product-review style piece, UGC-adjacent.',              1080, 1920, '0:15', true),
 
+  // ── Real Estate — property & architectural films ────────────────
+  make('london-property', 'London Property', 'Real Estate', 'Property walkthrough with architectural detail and natural light.', 1920, 1080, '0:30'),
+
   // ── Fashion — leanest category, kept to the two strongest pieces ──
   make('fashion-multiverse', 'Fashion Multiverse', 'Fashion', 'Vertical fashion motion built for Reels placement.',                  1080, 1920, '0:16'),
   make('fashion-reel',       'Fashion Reel',        'Fashion', 'Editorial styling with controlled studio lighting.',                 1080, 1920, '0:16'),
@@ -116,7 +120,7 @@ export const work: WorkItem[] = [
 ]
 
 export const categories: ('All' | Category)[] = [
-  'All', 'Mythology', 'Short Film', 'Micro Drama', 'Commercial', 'Fashion',
+  'All', 'Mythology', 'Short Film', 'Micro Drama', 'Commercial', 'Real Estate', 'Fashion',
 ]
 
 export const featured = ['rama-trailer', 'the-moon-parcel', 'royal-enfield']

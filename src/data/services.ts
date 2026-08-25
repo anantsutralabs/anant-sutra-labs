@@ -3,12 +3,13 @@ export type Service = {
   title: string
   desc: string
   /** drives the small line-icon rendered next to each row */
-  glyph: 'clapper' | 'megaphone' | 'aperture' | 'frame' | 'browser' | 'reel' | 'cube' | 'motion' | 'loop'
+  glyph: 'clapper' | 'megaphone' | 'aperture' | 'frame' | 'browser' | 'reel' | 'cube' | 'motion' | 'loop' | 'building'
 }
 
 export const services: Service[] = [
   { id: 'cinematic', title: 'Cinematic Films',           desc: 'Narrative-driven short films and trailers, mythology to micro-drama.',    glyph: 'clapper'    },
   { id: 'commercial', title: 'Commercials',               desc: 'Brand spots and product ads, concept to final cut.',                      glyph: 'megaphone'  },
+  { id: 'realestate', title: 'Real Estate & Architectural Films', desc: 'Property walkthroughs, architectural showcases and commercial-space ads.', glyph: 'building' },
   { id: 'product',    title: 'Product Shoots & Reviews',  desc: 'AI-generated product photography and UGC-style review content.',          glyph: 'aperture'   },
   { id: 'video',      title: 'Image & Video Generation',  desc: 'Product, fashion, portrait and branded visuals, stills to motion.',        glyph: 'frame'      },
   { id: 'web',        title: 'Website Design',            desc: 'Studio sites and campaign pages, built and deployed end-to-end.',          glyph: 'browser'    },
