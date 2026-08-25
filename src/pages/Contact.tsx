@@ -105,6 +105,8 @@ function FileField({
   )
 }
 
+type SubmitState = 'idle' | 'sending' | 'sent' | 'error'
+
 export default function Contact() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -112,25 +114,38 @@ export default function Contact() {
   const [message, setMessage] = useState('')
   const [refImage, setRefImage] = useState<File | null>(null)
   const [refVideo, setRefVideo] = useState<File | null>(null)
+  const [state, setState] = useState<SubmitState>('idle')
 
-  const submit = (e: React.FormEvent) => {
+  /**
+   * Posts straight to Netlify Forms — no visitor mail client involved, no
+   * backend of our own to run. The static, hidden form in index.html (same
+   * name, same fields) is what lets Netlify's build step register this
+   * form's schema; this fetch is what actually submits it at runtime.
+   *
+   * Only works once deployed on Netlify — the local dev server has no forms
+   * backend to receive this, so a local test will show the "sending" state
+   * and then fail. That's expected, not a bug; real delivery needs a deploy.
+   */
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const subject = `New project inquiry — ${project}`
-    const attachmentNote = [
-      refImage && `Reference image to attach: ${refImage.name}`,
-      refVideo && `Reference video to attach: ${refVideo.name}`,
-    ].filter(Boolean)
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      `Project type: ${project}`,
-      ...attachmentNote,
-      '',
-      message,
-    ].join('\n')
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`
+    setState('sending')
+
+    const data = new FormData()
+    data.set('form-name', 'contact')
+    data.set('name', name)
+    data.set('email', email)
+    data.set('project', project)
+    data.set('message', message)
+    if (refImage) data.set('referenceImage', refImage)
+    if (refVideo) data.set('referenceVideo', refVideo)
+
+    try {
+      const res = await fetch('/', { method: 'POST', body: data })
+      if (!res.ok) throw new Error(`${res.status}`)
+      setState('sent')
+    } catch {
+      setState('error')
+    }
   }
 
   return (
@@ -155,65 +170,105 @@ export default function Contact() {
       <div className="mt-12 grid gap-16 lg:grid-cols-[1.25fr_0.75fr]">
         {/* form */}
         <Reveal>
-          <form onSubmit={submit} className="flex flex-col gap-9">
-            <div className="grid gap-9 sm:grid-cols-2">
-              <Field label="Name" name="name" required value={name} onChange={setName} />
-              <Field label="Email" name="email" type="email" required value={email} onChange={setEmail} />
-            </div>
-
-            <Field label="Project type" name="project" as="select" value={project} onChange={setProject}>
-              {services.map((s) => (
-                <option key={s.id} value={s.title} className="bg-ink2">
-                  {s.title}
-                </option>
-              ))}
-              <option value="Custom scope" className="bg-ink2">Custom scope</option>
-            </Field>
-
-            <div className="grid gap-9 sm:grid-cols-2">
-              <FileField
-                label="Reference image (optional)"
-                accept="image/*"
-                file={refImage}
-                onChange={setRefImage}
-              />
-              <FileField
-                label="Reference video (optional)"
-                accept="video/*"
-                file={refVideo}
-                onChange={setRefVideo}
-              />
-            </div>
-
-            <Field
-              label="Tell us about the project"
-              name="message"
-              as="textarea"
-              required
-              value={message}
-              onChange={setMessage}
-            />
-
-            <div className="pt-2">
-              <Magnetic>
-                <button
-                  type="submit"
-                  className="focus-ring t-label group relative inline-flex items-center gap-3 overflow-hidden rounded-full px-8 py-4 text-ink"
-                >
-                  <span
-                    className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
-                    style={{ background: 'linear-gradient(100deg, #B79CFF, #8FEAF5)' }}
-                  />
-                  <span className="relative z-10">Send inquiry</span>
-                  <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-1">→</span>
-                </button>
-              </Magnetic>
-              <p className="mt-4 text-[11px] text-faint">
-                Opens your email client with the brief pre-filled
-                {(refImage || refVideo) && " — attach the file(s) you selected there, mail links can't carry them automatically"}.
+          {state === 'sent' ? (
+            <div className="flex min-h-[420px] flex-col justify-center">
+              <span className="eyebrow text-cyan-soft">Sent</span>
+              <h2 className="t-display-md mt-4">Got it — thank you.</h2>
+              <p className="body-copy mt-3 max-w-[46ch]">
+                Your inquiry landed directly in our inbox. Typical reply within one business day.
               </p>
+              <button
+                onClick={() => {
+                  setState('idle')
+                  setName('')
+                  setEmail('')
+                  setMessage('')
+                  setRefImage(null)
+                  setRefVideo(null)
+                }}
+                className="focus-ring t-label mt-8 inline-flex w-fit items-center gap-3 text-cyan-soft transition-opacity hover:opacity-75"
+              >
+                Send another
+              </button>
             </div>
-          </form>
+          ) : (
+            <form
+              name="contact"
+              onSubmit={submit}
+              className="flex flex-col gap-9"
+              aria-busy={state === 'sending'}
+            >
+              {/* honeypot — real visitors never see or fill this; bots that
+                  fill every field will, and Netlify silently drops those */}
+              <p hidden>
+                <label>
+                  Don&rsquo;t fill this out: <input name="bot-field" tabIndex={-1} autoComplete="off" />
+                </label>
+              </p>
+
+              <div className="grid gap-9 sm:grid-cols-2">
+                <Field label="Name" name="name" required value={name} onChange={setName} />
+                <Field label="Email" name="email" type="email" required value={email} onChange={setEmail} />
+              </div>
+
+              <Field label="Project type" name="project" as="select" value={project} onChange={setProject}>
+                {services.map((s) => (
+                  <option key={s.id} value={s.title} className="bg-ink2">
+                    {s.title}
+                  </option>
+                ))}
+                <option value="Custom scope" className="bg-ink2">Custom scope</option>
+              </Field>
+
+              <div className="grid gap-9 sm:grid-cols-2">
+                <FileField
+                  label="Reference image (optional)"
+                  accept="image/*"
+                  file={refImage}
+                  onChange={setRefImage}
+                />
+                <FileField
+                  label="Reference video (optional)"
+                  accept="video/*"
+                  file={refVideo}
+                  onChange={setRefVideo}
+                />
+              </div>
+
+              <Field
+                label="Tell us about the project"
+                name="message"
+                as="textarea"
+                required
+                value={message}
+                onChange={setMessage}
+              />
+
+              <div className="pt-2">
+                <Magnetic>
+                  <button
+                    type="submit"
+                    disabled={state === 'sending'}
+                    className="focus-ring t-label group relative inline-flex items-center gap-3 overflow-hidden rounded-full px-8 py-4 text-ink disabled:opacity-60"
+                  >
+                    <span
+                      className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.06]"
+                      style={{ background: 'linear-gradient(100deg, #B79CFF, #8FEAF5)' }}
+                    />
+                    <span className="relative z-10">{state === 'sending' ? 'Sending…' : 'Send inquiry'}</span>
+                    {state !== 'sending' && (
+                      <span className="relative z-10 transition-transform duration-500 group-hover:translate-x-1">→</span>
+                    )}
+                  </button>
+                </Magnetic>
+                <p className="mt-4 text-[11px] text-faint">
+                  {state === 'error'
+                    ? "That didn't go through — try again, or reach us on WhatsApp or email directly."
+                    : 'Sends straight to our inbox — no email app needed on your end.'}
+                </p>
+              </div>
+            </form>
+          )}
         </Reveal>
 
         {/* details */}

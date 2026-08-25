@@ -49,6 +49,22 @@
   </head>
   <body>
     <div id="root"></div>
+    <!--
+      Real, invisible HTML form — not rendered by React. Netlify's build bot
+      scans the built static HTML for forms to register the schema; a form
+      that only ever exists inside React's runtime output is invisible to
+      that scan. This one is never shown or submitted itself — the actual
+      form in Contact.tsx posts to Netlify under the same name and field set.
+    -->
+    <form name="contact" data-netlify="true" data-netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input type="text" name="name" />
+      <input type="email" name="email" />
+      <input type="text" name="project" />
+      <input type="file" name="referenceImage" />
+      <input type="file" name="referenceVideo" />
+      <textarea name="message"></textarea>
+      <input type="text" name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
