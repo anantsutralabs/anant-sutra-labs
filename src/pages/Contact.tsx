@@ -4,7 +4,8 @@ import { Reveal, HairRule } from '../components/Reveal'
 import { Magnetic } from '../components/Magnetic'
 import { site } from '../data/site'
 import { services } from '../data/services'
-import { InstagramIcon, WhatsAppIcon, LinkedInIcon, PhoneIcon } from '../components/SocialIcon'
+import { InstagramIcon, WhatsAppIcon, LinkedInIcon, PhoneIcon, EmailIcon } from '../components/SocialIcon'
+import { EmailMenu } from '../components/EmailMenu'
 
 /** Hairline-underline field with a gradient underline that animates on focus. */
 function Field({
@@ -337,15 +338,15 @@ export default function Contact() {
               </span>
             </a>
 
-            <div>
-              <span className="t-label-sm text-faint">Email</span>
-              <a
-                href={`mailto:${site.email}`}
-                className="focus-ring mt-3 block break-all text-[15px] transition-colors duration-300 hover:text-cyan-soft"
-              >
-                {site.email}
-              </a>
-            </div>
+            <EmailMenu className="focus-ring group flex w-full items-center gap-4 rounded-xl border border-white/10 px-5 py-4 text-left transition-colors duration-300 hover:border-white/25">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-cyan-soft transition-colors group-hover:bg-white/10">
+                <EmailIcon />
+              </span>
+              <span>
+                <span className="t-label-sm block text-faint">Email</span>
+                <span className="break-all text-[15px]">{site.email}</span>
+              </span>
+            </EmailMenu>
 
             <div className="hair" />
 

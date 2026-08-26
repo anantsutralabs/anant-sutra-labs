@@ -1,10 +1,11 @@
 import { site, nav } from '../data/site'
 import { PageLink } from './PageLink'
 import { HairRule } from './Reveal'
+import { EmailMenu } from './EmailMenu'
 
 export function Footer() {
   return (
-    <footer className="relative z-10 mt-32 pb-10">
+    <footer aria-label="Site footer" className="relative z-10 mt-32 pb-10">
       <div className="shell">
         <HairRule className="mb-10" />
 
@@ -12,7 +13,7 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <img
               src="/brand/logo-mark-256.png"
-              alt=""
+              alt={`${site.name} logo`}
               width={44}
               height={41}
               className="h-11 w-auto object-contain"
@@ -23,7 +24,8 @@ export function Footer() {
             </div>
           </div>
 
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-8 gap-y-3">
+          <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-8 gap-y-3">
+            <h2 className="sr-only">Site pages</h2>
             {nav.map((item) => (
               <PageLink
                 key={item.to}
@@ -36,6 +38,7 @@ export function Footer() {
           </nav>
 
           <div className="t-label flex flex-col gap-2">
+            <h2 className="sr-only">Contact</h2>
             <a
               href={site.instagram.url}
               target="_blank"
@@ -44,12 +47,9 @@ export function Footer() {
             >
               Instagram ↗
             </a>
-            <a
-              href={`mailto:${site.email}`}
-              className="focus-ring text-white/55 transition-colors duration-300 hover:text-white"
-            >
+            <EmailMenu className="focus-ring text-left text-white/55 transition-colors duration-300 hover:text-white">
               Email
-            </a>
+            </EmailMenu>
           </div>
         </div>
 
