@@ -21,4 +21,5 @@ export const clients: Client[] = [
   { id: 'tavrohi',     name: 'Tavrohi Animations' },
   { id: 'trikalmala',  name: 'Trikalmala' },
   { id: 'adityabirla', name: 'Aditya Birla Group' },
+  { id: 'spectralmoon', name: 'Spectralmoon Studio' },
 ]

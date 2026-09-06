@@ -6,11 +6,9 @@ import { LogoMark } from './LogoMark'
 import { Particles } from './Particles'
 import { OrbitLights } from './OrbitLights'
 import { Effects } from './Effects'
-import { WorkArc } from './WorkArc'
 import { device } from '../lib/device'
 import { frameState } from '../lib/frameState'
 import { damp } from '../lib/easing'
-import type { WorkItem } from '../data/work'
 
 /** Fog + exposure react to the lightbox focus state. */
 function Atmosphere() {
@@ -24,18 +22,11 @@ function Atmosphere() {
   return null
 }
 
-export type SceneProps = {
-  arcItems: WorkItem[]
-  onOpen: (item: WorkItem) => void
-  openId: string | null
-  showArc: boolean
-}
-
 /**
  * The one persistent canvas. Mounted outside the router in App, so it survives
  * every navigation — the camera simply flies somewhere else.
  */
-export function SceneRoot({ arcItems, onOpen, openId, showArc }: SceneProps) {
+export function SceneRoot() {
   return (
     <div className="fixed inset-0 -z-10" aria-hidden="true">
       <Canvas
@@ -65,12 +56,6 @@ export function SceneRoot({ arcItems, onOpen, openId, showArc }: SceneProps) {
         </Suspense>
 
         <Particles count={device.particleCount} />
-
-        {showArc && (
-          <Suspense fallback={null}>
-            <WorkArc items={arcItems} onOpen={onOpen} openId={openId} />
-          </Suspense>
-        )}
 
         {device.postprocessing && <Effects />}
       </Canvas>

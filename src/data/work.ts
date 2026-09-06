@@ -1,12 +1,14 @@
-/** Mirrors the production drive folders, ordered by strategic weight, not
- *  alphabetically: Mythology and Short Film lead because they're what a
- *  studio can't get from anyone else; Fashion trails as the least
+/** Mirrors the production drive folders, ordered by current studio
+ *  priority: commercial work leads since it's the most bookable category
+ *  day to day, Mythology sits lower for now since there's a single strong
+ *  trailer rather than a deep bench, and Fashion trails as the least
  *  differentiated category. */
 export type Category =
-  | 'Mythology'
+  | 'Commercial'
   | 'Short Film'
   | 'Micro Drama'
-  | 'Commercial'
+  | 'Mythology'
+  | 'Kids Rhymes'
   | 'Real Estate'
   | 'Fashion'
 
@@ -56,9 +58,20 @@ const make = (
 })
 
 export const work: WorkItem[] = [
-  // ── Mythology — leads: culturally specific, irreplaceable locally ──
-  make('rama-trailer',   'Rama Trailer',        'Mythology',   'Feature-scale mythological trailer in anamorphic scope.',          2212, 936,  '2:18'),
-  make('narsimha',       'Narasimha Ji',        'Mythology',   'Mythological sequence — transformation and scale.',                1920, 1080, '0:53'),
+  // ── Commercial (spec work — no client, credit is the concept + execution) ──
+  // Cheetos leads the category — the piece to lead with when a client lands here first.
+  make('cheetos',       'Cheetos Commercial',       'Commercial', 'High-energy snack spot with hard-cut product beats.',              1920, 1080, '0:31', true),
+  make('royal-enfield', 'Royal Enfield Commercial', 'Commercial', 'Anamorphic motorcycle film — dust, chrome and long light.',        2212, 936,  '0:31', true),
+  make('hell',          'Hell Commercial',          'Commercial', 'Energy-drink commercial built on contrast and heat.',              1920, 1080, '0:43', true),
+  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and color — a classic beverage build.',       1920, 1080, '0:28', true),
+  make('pringles',      'Pringles Commercial',      'Commercial', 'Stacked-product choreography and crisp macro texture.',            1920, 1080, '0:34', true),
+  make('mac',           'MAC Commercial',           'Commercial', 'Beauty commercial — specular highlights and pigment.',             1920, 1080, '0:34', true),
+  make('paper-boat',    'Paper Boat Commercial',    'Commercial', 'Nostalgia-led brand film with a warm, soft palette.',              1920, 1080, '0:17', true),
+  make('oreo',          'Oreo Commercial',          'Commercial', 'Cookie commercial — twist, dunk and classic product beats.',       1920, 1080, '0:29', true),
+  make('britannia',     'Britannia Commercial',     'Commercial', 'Packaged-food spot with warm domestic staging.',                   1280, 720,  '0:30', true),
+  make('pizza',         'Pizza Commercial',         'Commercial', 'Food commercial — steam, pull-apart and appetite cues.',           1280, 720,  '0:15', true),
+  make('cupid',         'Cupid Commercial',         'Commercial', 'Vertical product spot built for Reels placement.',                 720,  1280, '0:15', true),
+  make('jacket-review',  'Jacket Product Review',    'Commercial', 'Vertical product-review style piece, UGC-adjacent.',              1080, 1920, '0:15', true),
 
   // ── Short Film — the personal/experimental work; the actual differentiator ──
   {
@@ -85,28 +98,26 @@ export const work: WorkItem[] = [
     stills: [1, 2, 3, 4, 5].map((n) => `/work/stills/moon-parcel-0${n}.jpg`),
   },
 
-  // ── Micro Drama ─────────────────────────────────────────────
-  make('frostborn-teaser',  'Frostborn Teaser',    'Micro Drama', 'Cinematic game teaser — world reveal and title beat.',           1920, 1080, '1:05'),
-  make('khep',               'Khep',                'Micro Drama', 'Character-driven short with grounded, gritty grade.',            1920, 1080, '0:44'),
-  make('the-last-coffee',    'The Last Coffee',     'Micro Drama', 'Two-hander scene — performance, pacing and silence.',            1920, 1080, '0:36'),
+  // ── Micro Drama — Paanch Gend leads, full poster on display ──
+  // aspect matches the actual poster art (1672×941) — the old 2560×1100
+  // value didn't match the real file and was forcing object-cover to crop
+  // the top/bottom off the poster to fill a box wider than the image is.
+  make('paanch-gend',        'Paanch Gend',         'Micro Drama', 'Long-form dramatic sequence in anamorphic scope.',               1672, 941,  '1:55'),
+  make('aari-aari-song',     'Aari Aari Song',      'Micro Drama', 'Narrative song sequence from the studio\'s micro-drama slate.',  1920, 1080, '1:18'),
   make('didi-dhurandhar',    'Didi Dhurandhar Song','Micro Drama', 'Narrative song sequence built around a lead performance.',       1920, 1080, '0:59'),
   make('ucha-lamba-kad',     'Ucha Lamba Kad Song', 'Micro Drama', 'Narrative song piece with sustained character staging.',         1920, 1080, '1:23'),
-  make('paanch-gend',        'Paanch Gend',         'Micro Drama', 'Long-form dramatic sequence in anamorphic scope.',               2560, 1100, '1:55'),
+  make('khep',               'Khep',                'Micro Drama', 'Character-driven short with grounded, gritty grade.',            1920, 1080, '0:44'),
   make('alone',               'Alone',               'Micro Drama', 'Single-character dramatic piece, minimal and quiet.',            1280, 720,  '0:30'),
+  make('frostborn-teaser',  'Frostborn Teaser',    'Micro Drama', 'Cinematic game teaser — world reveal and title beat.',           1920, 1080, '1:05'),
+  make('paris-vlog', 'Paris Vlog', 'Micro Drama', 'Location-shot vlog-style piece.', 1280, 720, '0:15'),
+  make('the-last-coffee',    'The Last Coffee',     'Micro Drama', 'Two-hander scene — performance, pacing and silence.',            1920, 1080, '0:36'),
 
-  // ── Commercial (spec work — no client, credit is the concept + execution) ──
-  make('royal-enfield', 'Royal Enfield Commercial', 'Commercial', 'Anamorphic motorcycle film — dust, chrome and long light.',        2212, 936,  '0:31', true),
-  make('cheetos',       'Cheetos Commercial',       'Commercial', 'High-energy snack spot with hard-cut product beats.',              1920, 1080, '0:31', true),
-  make('hell',          'Hell Commercial',          'Commercial', 'Energy-drink commercial built on contrast and heat.',              1920, 1080, '0:43', true),
-  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and color — a classic beverage build.',       1920, 1080, '0:28', true),
-  make('pringles',      'Pringles Commercial',      'Commercial', 'Stacked-product choreography and crisp macro texture.',            1920, 1080, '0:34', true),
-  make('mac',           'MAC Commercial',           'Commercial', 'Beauty commercial — specular highlights and pigment.',             1920, 1080, '0:34', true),
-  make('paper-boat',    'Paper Boat Commercial',    'Commercial', 'Nostalgia-led brand film with a warm, soft palette.',              1920, 1080, '0:17', true),
-  make('oreo',          'Oreo Commercial',          'Commercial', 'Cookie commercial — twist, dunk and classic product beats.',       1920, 1080, '0:29', true),
-  make('britannia',     'Britannia Commercial',     'Commercial', 'Packaged-food spot with warm domestic staging.',                   1280, 720,  '0:30', true),
-  make('pizza',         'Pizza Commercial',         'Commercial', 'Food commercial — steam, pull-apart and appetite cues.',           1280, 720,  '0:15', true),
-  make('cupid',         'Cupid Commercial',         'Commercial', 'Vertical product spot built for Reels placement.',                 720,  1280, '0:15', true),
-  make('jacket-review',  'Jacket Product Review',    'Commercial', 'Vertical product-review style piece, UGC-adjacent.',              1080, 1920, '0:15', true),
+  // ── Mythology — culturally specific, irreplaceable locally ──
+  make('rama-trailer',   'Rama Trailer',        'Mythology',   'Feature-scale mythological trailer in anamorphic scope.',          2212, 936,  '2:18'),
+  make('narsimha',       'Narasimha Ji',        'Mythology',   'Mythological sequence — transformation and scale.',                1920, 1080, '0:53'),
+
+  // ── Kids Rhymes — new category, edutainment for young viewers ──
+  make('abc-kids-rhymes', 'ABC Kids Rhymes Song', 'Kids Rhymes', 'Bright, sing-along rhyme built for young viewers — simple staging, bold color.', 1920, 1080, '2:52'),
 
   // ── Real Estate — property & architectural films ────────────────
   make('london-property', 'London Property', 'Real Estate', 'Property walkthrough with architectural detail and natural light.', 1920, 1080, '0:30'),
@@ -114,13 +125,10 @@ export const work: WorkItem[] = [
   // ── Fashion — leanest category, kept to the two strongest pieces ──
   make('fashion-multiverse', 'Fashion Multiverse', 'Fashion', 'Vertical fashion motion built for Reels placement.',                  1080, 1920, '0:16'),
   make('fashion-reel',       'Fashion Reel',        'Fashion', 'Editorial styling with controlled studio lighting.',                 1080, 1920, '0:16'),
-
-  // ── Unplaced — genre doesn't match any category above; flagged, not dropped ──
-  make('paris-vlog', 'Paris Vlog', 'Micro Drama', 'Location-shot vlog-style piece.', 1280, 720, '0:15'),
 ]
 
 export const categories: ('All' | Category)[] = [
-  'All', 'Mythology', 'Short Film', 'Micro Drama', 'Commercial', 'Real Estate', 'Fashion',
+  'All', 'Commercial', 'Short Film', 'Micro Drama', 'Mythology', 'Kids Rhymes', 'Real Estate', 'Fashion',
 ]
 
 export const featured = ['rama-trailer', 'the-moon-parcel', 'royal-enfield']

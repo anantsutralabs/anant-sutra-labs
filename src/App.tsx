@@ -1,5 +1,5 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { BrowserRouter, Routes, Route, useLocation, useSearchParams } from 'react-router-dom'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 
 import { SceneRoot } from './three/SceneRoot'
 import { Nav } from './components/Nav'
@@ -12,8 +12,7 @@ import { Lightbox } from './components/Lightbox'
 import { useLenisScroll } from './lib/useLenis'
 import { frameState } from './lib/frameState'
 import { runPopTransition } from './lib/transition'
-import { device } from './lib/device'
-import { work, type WorkItem, type Category } from './data/work'
+import type { WorkItem } from './data/work'
 
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
@@ -44,33 +43,12 @@ function RouteSync() {
 function Shell({
   openItem,
   setOpenItem,
-  setArcItems,
-  onEnterPortfolio,
 }: {
   openItem: WorkItem | null
   setOpenItem: (i: WorkItem | null) => void
-  setArcItems: (i: WorkItem[]) => void
-  onEnterPortfolio: () => void
 }) {
   useLenisScroll()
   const location = useLocation()
-  const [params] = useSearchParams()
-
-  // portfolio filter lives in the URL
-  const filter = (params.get('filter') ?? 'all').toLowerCase()
-
-  useEffect(() => {
-    if (location.pathname !== '/portfolio') {
-      setArcItems(work)
-      return
-    }
-    onEnterPortfolio()
-    const next =
-      filter === 'all'
-        ? work
-        : work.filter((w) => w.category.toLowerCase().replace(/\s+/g, '-') === filter)
-    setArcItems(next.length ? next : work)
-  }, [filter, location.pathname, setArcItems, onEnterPortfolio])
 
   return (
     <>
@@ -104,14 +82,6 @@ function Shell({
 export default function App() {
   const [ready, setReady] = useState(() => hasVisited())
   const [openItem, setOpenItem] = useState<WorkItem | null>(null)
-  const [arcItems, setArcItems] = useState<WorkItem[]>(work)
-  const [showArc, setShowArc] = useState(false)
-
-  /**
-   * The arc mounts the first time the gallery is visited and then stays
-   * mounted for the session, so returning to it costs no texture reload.
-   */
-  const onEnterPortfolio = useCallback(() => setShowArc(true), [])
 
   useEffect(() => {
     let raf = 0
@@ -124,17 +94,10 @@ export default function App() {
     return () => cancelAnimationFrame(raf)
   }, [openItem])
 
-  const onOpen = useCallback((item: WorkItem) => setOpenItem(item), [])
-
   return (
     <BrowserRouter>
       {/* the canvas lives outside <Routes> — it never unmounts */}
-      <SceneRoot
-        arcItems={arcItems}
-        onOpen={onOpen}
-        openId={openItem?.id ?? null}
-        showArc={showArc && !device.flatGallery}
-      />
+      <SceneRoot />
 
       <RouteSync />
       <Cursor />
@@ -142,12 +105,7 @@ export default function App() {
 
       {!ready && <Preloader onDone={() => setReady(true)} />}
 
-      <Shell
-        openItem={openItem}
-        setOpenItem={setOpenItem}
-        setArcItems={setArcItems}
-        onEnterPortfolio={onEnterPortfolio}
-      />
+      <Shell openItem={openItem} setOpenItem={setOpenItem} />
     </BrowserRouter>
   )
 }

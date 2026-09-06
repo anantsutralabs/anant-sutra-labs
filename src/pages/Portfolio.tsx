@@ -1,30 +1,136 @@
-import { useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
-import { work, categories, type WorkItem } from '../data/work'
-import { device } from '../lib/device'
-import { frameState } from '../lib/frameState'
-import { getLenis } from '../lib/useLenis'
+import { work, categories, type WorkItem, type Category } from '../data/work'
 
 const slug = (c: string) => c.toLowerCase().replace(/\s+/g, '-')
 
+/** Small filled play triangle — the hover cue that tells a client "this is
+ *  a video, click it" without relying on them already knowing the site. */
+function PlayGlyph() {
+  return (
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 scale-90">
+      <svg viewBox="0 0 24 24" className="ml-1 h-6 w-6" aria-hidden="true">
+        <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+      </svg>
+    </span>
+  )
+}
+
+/**
+ * The catalogue is a real mix — anamorphic cinematic shots, plain 16:9, and
+ * vertical Reels content — so one uniform grid cell flattens that out. This
+ * varies each card's WIDTH by category (tall-narrow for portrait, full-row
+ * for ultra-wide anamorphic, half-row for standard landscape); the card's
+ * HEIGHT is never forced — it's set from the item's own aspect-ratio via
+ * inline style, so nothing is ever stretched or cropped to fit a box that
+ * doesn't match its footage.
+ */
+function widthClasses(aspect: number): string {
+  if (aspect < 0.85) {
+    // portrait — narrow column, Reels-shaped
+    return 'col-span-1 md:col-span-2'
+  }
+  if (aspect > 1.95) {
+    // anamorphic / ultra-wide — full-width row so it reads as large, not a sliver
+    return 'col-span-2 md:col-span-6'
+  }
+  // standard 16:9 landscape
+  return 'col-span-2 md:col-span-3'
+}
+
+function FilmCard({
+  item,
+  delay,
+  onOpen,
+}: {
+  item: WorkItem
+  delay: number
+  onOpen: (i: WorkItem) => void
+}) {
+  return (
+    <Reveal delay={delay} className={widthClasses(item.aspect)}>
+      <button
+        onClick={() => onOpen(item)}
+        aria-label={`Play ${item.title} — ${item.category}. ${item.blurb} ${item.duration}.`}
+        style={{ aspectRatio: String(item.aspect) }}
+        className="focus-ring group relative block w-full overflow-hidden rounded-lg border border-white/10 bg-white/[0.02] text-left transition-colors duration-300 hover:border-white/25"
+      >
+        <img
+          src={item.poster}
+          alt={`${item.title} — ${item.category} film by Anant Sutra Labs`}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover opacity-95 transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04] group-hover:opacity-100"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: 'linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.82) 100%)' }}
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <PlayGlyph />
+        </div>
+        <span className="t-label-sm tnum pointer-events-none absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
+          {item.duration}
+        </span>
+        {item.status === 'In development' && (
+          <span className="t-label-sm pointer-events-none absolute left-3 top-3 rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-cyan-soft backdrop-blur">
+            Coming Soon
+          </span>
+        )}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3.5">
+          <h2 className="text-[0.9rem] font-medium leading-tight tracking-[-0.01em] text-white">
+            {item.title}
+          </h2>
+          <span className="t-label-sm shrink-0 text-white/65">{item.category}</span>
+        </div>
+      </button>
+    </Reveal>
+  )
+}
+
+function FilmGrid({ items, onOpen, delayOffset = 0 }: {
+  items: WorkItem[]
+  onOpen: (i: WorkItem) => void
+  delayOffset?: number
+}) {
+  return (
+    <div className="grid grid-flow-dense grid-cols-2 items-start gap-4 md:grid-cols-6">
+      {items.map((item, i) => (
+        <FilmCard key={item.id} item={item} onOpen={onOpen} delay={Math.min(i + delayOffset, 8) * 0.04} />
+      ))}
+    </div>
+  )
+}
+
 export default function Portfolio({
   onOpen,
-  openItem,
 }: {
   onOpen: (i: WorkItem | null) => void
   openItem: WorkItem | null
 }) {
   const [params, setParams] = useSearchParams()
   const active = params.get('filter') ?? 'all'
-  const runwayRef = useRef<HTMLDivElement>(null)
-  const indexRef = useRef(0)
 
   const items =
     active === 'all' ? work : work.filter((w) => slug(w.category) === active)
   const shown = items.length ? items : work
+
+  // one flagship pick per category, in category order — a quick cross-section
+  // of the whole reel before someone commits to a single category
+  const highlightIds = new Set<string>()
+  const highlights: WorkItem[] =
+    active === 'all'
+      ? (categories.filter((c): c is Category => c !== 'All')
+          .map((c) => work.find((w) => w.category === c))
+          .filter((w): w is WorkItem => {
+            if (!w || highlightIds.has(w.id)) return false
+            highlightIds.add(w.id)
+            return true
+          }))
+      : []
+  const rest = active === 'all' ? shown.filter((w) => !highlightIds.has(w.id)) : shown
 
   const setFilter = (c: string) => {
     const next = new URLSearchParams(params)
@@ -33,303 +139,78 @@ export default function Portfolio({
     setParams(next, { replace: true })
   }
 
-  // let pointer events reach the canvas while the arc is the main content
-  useEffect(() => {
-    if (device.flatGallery) return
-    document.body.classList.add('arc-active')
-    return () => document.body.classList.remove('arc-active')
-  }, [])
-
-  // the 3D arc needs page height to scroll against
-  const scrollHeight = device.flatGallery ? undefined : `${Math.max(220, shown.length * 44)}vh`
-
-  /**
-   * Drives frameState.arcProgress from the runway element's own position,
-   * not the whole page's scroll — the header and the closing text block
-   * have their own height, and mixing that into "how far through the arc
-   * am I" is what made scrolling feel imprecise and made the arc's fade
-   * bleed into the footer transition.
-   */
-  useEffect(() => {
-    if (device.flatGallery) return
-    const el = runwayRef.current
-    if (!el) return
-
-    const span = Math.max(1, shown.length - 1)
-
-    const update = () => {
-      const rect = el.getBoundingClientRect()
-      const total = rect.height - window.innerHeight
-      const p = total > 0 ? (0 - rect.top) / total : 0
-      const clamped = Math.min(1, Math.max(0, p))
-      frameState.arcProgress = clamped
-      indexRef.current = clamped * span
-    }
-
-    update()
-    const lenis = getLenis()
-    lenis?.on('scroll', update)
-    addEventListener('resize', update)
-    return () => {
-      lenis?.off('scroll', update)
-      removeEventListener('resize', update)
-      frameState.arcProgress = 0
-    }
-  }, [shown.length])
-
-  const step = useCallback(
-    (dir: 1 | -1) => {
-      const el = runwayRef.current
-      const lenis = getLenis()
-      if (!el || !lenis) return
-      const span = Math.max(1, shown.length - 1)
-      const rect = el.getBoundingClientRect()
-      const total = rect.height - window.innerHeight
-      const docTop = window.scrollY + rect.top
-      const targetIndex = Math.min(span, Math.max(0, Math.round(indexRef.current) + dir))
-      const targetY = docTop + (targetIndex / span) * total
-      lenis.scrollTo(targetY, { duration: 1.0 })
-    },
-    [shown.length],
-  )
-
-  // arrow keys travel the arc — the accessibility gap that mattered most,
-  // since the whole gallery was previously mouse-only
-  useEffect(() => {
-    if (device.flatGallery) return
-    const onKey = (e: KeyboardEvent) => {
-      const typing = (e.target as HTMLElement)?.closest('input, textarea, select, [contenteditable]')
-      if (typing) return
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault()
-        step(1)
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault()
-        step(-1)
-      }
-    }
-    addEventListener('keydown', onKey)
-    return () => removeEventListener('keydown', onKey)
-  }, [step])
-
-  /**
-   * Click-and-drag / touch-drag pans the arc, the way you'd drag a reel —
-   * previously the only way to move it was a precise wheel/trackpad scroll,
-   * which read as fiddly. A small movement threshold keeps a plain click on
-   * a card working normally; past that threshold we treat it as a drag and
-   * swallow the click that would otherwise follow.
-   */
-  useEffect(() => {
-    if (device.flatGallery) return
-    let dragging = false
-    let dragged = false
-    let startX = 0
-    let startY = 0
-    let startScroll = 0
-    const THRESHOLD = 6
-
-    const onDown = (e: PointerEvent) => {
-      if ((e.target as Element)?.closest('[data-ui], header, footer, a, button')) return
-      dragging = true
-      dragged = false
-      startX = e.clientX
-      startY = e.clientY
-      startScroll = getLenis()?.scroll ?? window.scrollY
-    }
-    const onMove = (e: PointerEvent) => {
-      if (!dragging) return
-      const dx = e.clientX - startX
-      const dy = e.clientY - startY
-      if (!dragged && Math.hypot(dx, dy) > THRESHOLD) dragged = true
-      if (dragged) {
-        const delta = Math.abs(dy) > Math.abs(dx) ? dy : dx
-        getLenis()?.scrollTo(startScroll - delta, { immediate: true })
-      }
-    }
-    const onUp = () => {
-      dragging = false
-    }
-    // a drag that just released shouldn't also open whatever card is underneath
-    const onClickCapture = (e: MouseEvent) => {
-      if (dragged) {
-        e.stopPropagation()
-        e.preventDefault()
-        dragged = false
-      }
-    }
-
-    addEventListener('pointerdown', onDown, { passive: true })
-    addEventListener('pointermove', onMove, { passive: true })
-    addEventListener('pointerup', onUp, { passive: true })
-    addEventListener('click', onClickCapture, { capture: true })
-    return () => {
-      removeEventListener('pointerdown', onDown)
-      removeEventListener('pointermove', onMove)
-      removeEventListener('pointerup', onUp)
-      removeEventListener('click', onClickCapture, { capture: true })
-    }
-  }, [])
-
   return (
     <>
-      {/*
-        Sticky within this wrapper only: it releases naturally once the
-        runway below it scrolls past, so it never fights the footer at the
-        end of the page — CSS `sticky` unsticks itself at the end of its
-        own containing block, no manual bookkeeping needed.
-      */}
-      <div className="relative">
-        <div className="sticky top-[68px] z-20 bg-gradient-to-b from-ink via-ink/95 to-transparent pb-6 pt-[max(env(safe-area-inset-top),0px)] md:top-[76px]">
-          <section data-ui className="shell pt-10 md:pt-12">
-            <Reveal><span className="eyebrow">Our Work</span></Reveal>
+      <section data-ui className="shell pt-32">
+        <Reveal><span className="eyebrow">Our Work</span></Reveal>
 
-            <h1 className="mt-4">
-              <SplitText
-                as="span"
-                text="AI Films"
-                className="t-display-lg block"
-                stagger={0.024}
-              />
-            </h1>
+        <h1 className="mt-4">
+          <SplitText as="span" text="AI Films" className="t-display-lg block" stagger={0.024} />
+        </h1>
 
-            <Reveal delay={0.35}>
-              <p className="body-copy mt-4 max-w-[46ch]">
-                {device.flatGallery
-                  ? 'Tap any frame to play the film.'
-                  : 'Drag, scroll, or use the arrows to travel the arc. Click any frame to play the film.'}
-              </p>
-            </Reveal>
+        <Reveal delay={0.35}>
+          <p className="body-copy mt-4 max-w-[46ch]">
+            Pick a category, or browse everything below. Click any frame to play the film.
+          </p>
+        </Reveal>
 
-            {/* filter pills */}
-            <Reveal delay={0.45}>
-              <div className="mt-6 flex flex-wrap gap-2.5" role="tablist" aria-label="Filter work">
-                {categories.map((c) => {
-                  const key = c === 'All' ? 'all' : slug(c)
-                  const isActive = active === key
-                  return (
-                    <button
-                      key={c}
-                      role="tab"
-                      aria-selected={isActive}
-                      onClick={() => setFilter(key)}
-                      className={`focus-ring t-label-sm relative overflow-hidden rounded-full border px-5 py-2 transition-colors duration-500 ${
-                        isActive
-                          ? 'border-transparent text-ink'
-                          : 'border-white/15 text-white/60 hover:border-white/40 hover:text-white'
-                      }`}
-                    >
-                      {isActive && (
-                        <motion.span
-                          layoutId="pill"
-                          className="absolute inset-0"
-                          style={{ background: 'linear-gradient(100deg, #B79CFF, #8FEAF5)' }}
-                          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-                        />
-                      )}
-                      <span className="relative z-10">{c}</span>
-                    </button>
-                  )
-                })}
-                <span className="t-label-sm tnum ml-1 self-center text-faint">
-                  {shown.length} films
-                </span>
-              </div>
-            </Reveal>
-            <HairRule className="mt-6" />
-          </section>
-        </div>
-
-        {/* ── 3D ARC: this block is just scroll runway; the planes live in WebGL ── */}
-        {!device.flatGallery && (
-          <div ref={runwayRef} style={{ height: scrollHeight }} aria-hidden="true" />
-        )}
-      </div>
-
-      {/*
-        Real, visible-to-crawlers text for every film — the 3D arc renders
-        titles and posters as WebGL geometry, which is invisible to search
-        engines, AI crawlers and screen readers no matter how it's marked up.
-        This list is the actual content underneath that render; sr-only (not
-        aria-hidden) keeps it out of the sighted layout while staying fully
-        readable to everything else. It previously lived inside the runway's
-        own aria-hidden wrapper above, which hid it from assistive tech too —
-        the exact audience it was meant for.
-      */}
-      {!device.flatGallery && (
-        <ul className="sr-only">
-          {shown.map((w) => (
-            <li key={w.id}>
-              <button onClick={() => onOpen(w)}>
-                {w.title} — {w.category}. {w.blurb} {w.role}. {w.duration}.
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* arrow navigation — own lane at the bottom of the viewport, well
-          clear of the card row, so reaching for one never risks opening a
-          film by mistake */}
-      {!device.flatGallery && (
-        <div
-          data-ui
-          className="pointer-events-none fixed inset-x-0 bottom-6 z-20 flex justify-center gap-5 md:bottom-9"
-        >
-          <button
-            onClick={() => step(-1)}
-            aria-label="Previous film"
-            className="focus-ring pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/75 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
-          >
-            <span aria-hidden="true" className="text-2xl">←</span>
-          </button>
-          <button
-            onClick={() => step(1)}
-            aria-label="Next film"
-            className="focus-ring pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-black/45 text-white/75 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
-          >
-            <span aria-hidden="true" className="text-2xl">→</span>
-          </button>
-        </div>
-      )}
-
-      {/* ── FLAT GRID: mobile / reduced-motion ─────────────────── */}
-      {device.flatGallery && (
-        <section data-ui className="shell mt-12">
-          <div className="grid gap-5 sm:grid-cols-2">
-            {shown.map((item, i) => (
-              <Reveal key={item.id} delay={Math.min(i, 6) * 0.06}>
+        {/* filter pills */}
+        <Reveal delay={0.45}>
+          <div className="mt-6 flex flex-wrap gap-2.5" role="tablist" aria-label="Filter work">
+            {categories.map((c) => {
+              const key = c === 'All' ? 'all' : slug(c)
+              const isActive = active === key
+              return (
                 <button
-                  onClick={() => onOpen(item)}
-                  className="focus-ring group block w-full text-left"
+                  key={c}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setFilter(key)}
+                  className={`focus-ring t-label-sm relative overflow-hidden rounded-full border px-5 py-2 transition-colors duration-500 ${
+                    isActive
+                      ? 'border-transparent text-ink'
+                      : 'border-white/15 text-white/60 hover:border-white/40 hover:text-white'
+                  }`}
                 >
-                  <div
-                    className="relative overflow-hidden rounded-lg border border-white/10"
-                    style={{ aspectRatio: String(item.aspect) }}
-                  >
-                    <img
-                      src={item.poster}
-                      alt={`${item.title} — ${item.category} film by Anant Sutra Labs`}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover opacity-95 transition-all duration-700 group-hover:scale-[1.03] group-hover:opacity-100"
+                  {isActive && (
+                    <motion.span
+                      layoutId="pill"
+                      className="absolute inset-0"
+                      style={{ background: 'linear-gradient(100deg, #B79CFF, #8FEAF5)' }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 34 }}
                     />
-                    <span className="t-label-sm tnum absolute bottom-3 right-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
-                      {item.duration}
-                    </span>
-                  </div>
-                  <div className="mt-3.5 flex items-baseline justify-between gap-4">
-                    <h2 className="text-[0.9rem] font-medium tracking-[-0.01em]">{item.title}</h2>
-                    <span className="t-label-sm text-faint">
-                      {item.category}
-                    </span>
-                  </div>
+                  )}
+                  <span className="relative z-10">{c}</span>
                 </button>
-              </Reveal>
-            ))}
+              )
+            })}
+            <span className="t-label-sm tnum ml-1 self-center text-faint">
+              {shown.length} films
+            </span>
+          </div>
+        </Reveal>
+        <HairRule className="mt-6" />
+      </section>
+
+      {highlights.length > 0 && (
+        <section className="shell mt-10">
+          <Reveal><span className="eyebrow">One From Every Category</span></Reveal>
+          <div className="mt-5">
+            <FilmGrid items={highlights} onOpen={onOpen} />
           </div>
         </section>
       )}
 
+      <section className="shell mt-10 pb-24">
+        {highlights.length > 0 && (
+          <Reveal>
+            <span className="eyebrow">Everything Else</span>
+          </Reveal>
+        )}
+        <div className={highlights.length > 0 ? 'mt-5' : ''}>
+          <FilmGrid items={rest} onOpen={onOpen} delayOffset={highlights.length} />
+        </div>
+      </section>
     </>
   )
 }
