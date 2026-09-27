@@ -27,6 +27,11 @@ export type WorkItem = {
   blurb: string
   aspect: number
   duration: string
+  /** forces the Portfolio grid's full-width "hero" treatment regardless of
+   *  aspect ratio — for a standard 16:9 piece this still shows the whole
+   *  poster (unlike the old anamorphic-only rule, it never fakes the aspect
+   *  to get there, so nothing crops), it just reads as a featured row. */
+  wide?: boolean
   /** independent concept/spec work rather than a commissioned campaign */
   spec?: boolean
   /** absent while a project is still in development — the entry shows its
@@ -51,20 +56,25 @@ const p = (id: string) => `/work/poster/${id}.jpg`
 
 const make = (
   id: string, title: string, category: Category, blurb: string,
-  w: number, h: number, duration: string, spec = false, role: string = SOLO,
+  w: number, h: number, duration: string, spec = false, role: string = SOLO, wide = false,
 ): WorkItem => ({
   id, title, category, role, blurb, aspect: w / h,
-  duration, spec, video: v(id), poster: p(id),
+  duration, spec, video: v(id), poster: p(id), wide,
 })
 
 export const work: WorkItem[] = [
   // ── Commercial (spec work — no client, credit is the concept + execution) ──
   // Cheetos leads the category — the piece to lead with when a client lands here first.
   make('cheetos',       'Cheetos Commercial',       'Commercial', 'High-energy snack spot with hard-cut product beats.',              1920, 1080, '0:31', true),
-  make('royal-enfield', 'Royal Enfield Commercial', 'Commercial', 'Anamorphic motorcycle film — dust, chrome and long light.',        2212, 936,  '0:31', true),
   make('hell',          'Hell Commercial',          'Commercial', 'Energy-drink commercial built on contrast and heat.',              1920, 1080, '0:43', true),
-  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and color — a classic beverage build.',       1920, 1080, '0:28', true),
+  make('royal-enfield', 'Royal Enfield Commercial', 'Commercial', 'Anamorphic motorcycle film — dust, chrome and long light.',        2212, 936,  '0:31', true),
+  make('chips-commercial', 'Chips Commercial',       'Commercial', 'Snack-food spot with crisp product close-ups and quick cuts.',    1920, 1080, '0:15', true),
   make('pringles',      'Pringles Commercial',      'Commercial', 'Stacked-product choreography and crisp macro texture.',            1920, 1080, '0:34', true),
+  // Diet Coke gets the same full-width "hero" row as Royal Enfield — still
+  // its own correct 16:9 aspect (see the `wide` note on WorkItem), just
+  // featured, not stretched.
+  make('diet-coke',     'Diet Coke Commercial',     'Commercial', 'Condensation, glass and color — a classic beverage build.',       1920, 1080, '0:28', true, SOLO, true),
+  make('lahori-jeera-commercial', 'Lahori Jeera Commercial', 'Commercial', 'Beverage spot with punchy color and quick product cuts.', 1920, 1080, '0:24', true),
   make('mac',           'MAC Commercial',           'Commercial', 'Beauty commercial — specular highlights and pigment.',             1920, 1080, '0:34', true),
   make('paper-boat',    'Paper Boat Commercial',    'Commercial', 'Nostalgia-led brand film with a warm, soft palette.',              1920, 1080, '0:17', true),
   make('oreo',          'Oreo Commercial',          'Commercial', 'Cookie commercial — twist, dunk and classic product beats.',       1920, 1080, '0:29', true),

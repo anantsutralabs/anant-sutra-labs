@@ -22,17 +22,23 @@ function PlayGlyph() {
  * The catalogue is a real mix — anamorphic cinematic shots, plain 16:9, and
  * vertical Reels content — so one uniform grid cell flattens that out. This
  * varies each card's WIDTH by category (tall-narrow for portrait, full-row
- * for ultra-wide anamorphic, half-row for standard landscape); the card's
- * HEIGHT is never forced — it's set from the item's own aspect-ratio via
- * inline style, so nothing is ever stretched or cropped to fit a box that
- * doesn't match its footage.
+ * for ultra-wide anamorphic or a manually-featured `wide` item, half-row
+ * for standard landscape); the card's HEIGHT is never forced — it's set
+ * from the item's own aspect-ratio via inline style, so nothing is ever
+ * stretched or cropped to fit a box that doesn't match its footage. A
+ * `wide` item keeps its own real aspect ratio too — it just gets the
+ * full-row width, so a 16:9 piece featured this way reads taller than an
+ * anamorphic one in the same slot, not distorted to match it.
  */
-function widthClasses(aspect: number): string {
-  if (aspect < 0.85) {
+function widthClasses(item: WorkItem): string {
+  if (item.wide) {
+    return 'col-span-2 md:col-span-6'
+  }
+  if (item.aspect < 0.85) {
     // portrait — narrow column, Reels-shaped
     return 'col-span-1 md:col-span-2'
   }
-  if (aspect > 1.95) {
+  if (item.aspect > 1.95) {
     // anamorphic / ultra-wide — full-width row so it reads as large, not a sliver
     return 'col-span-2 md:col-span-6'
   }
@@ -50,7 +56,7 @@ function FilmCard({
   onOpen: (i: WorkItem) => void
 }) {
   return (
-    <Reveal delay={delay} className={widthClasses(item.aspect)}>
+    <Reveal delay={delay} className={widthClasses(item)}>
       <button
         onClick={() => onOpen(item)}
         aria-label={`Play ${item.title} — ${item.category}. ${item.blurb} ${item.duration}.`}
