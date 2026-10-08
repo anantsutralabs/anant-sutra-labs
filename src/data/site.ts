@@ -9,6 +9,8 @@ export const site = {
   whatsapp: { number: '917503591899', display: '+91 75035 91899' },
   instagram: { handle: '@anantsutralabs', url: 'https://instagram.com/anantsutralabs' },
   linkedin: { handle: 'naveensharma03', url: 'https://www.linkedin.com/in/naveensharma03/' },
+  /** Naveen's 3D environment portfolio — linked from the Portfolio's 3D Work category */
+  artstation: { handle: 'naveensharma', url: 'https://www.artstation.com/naveensharma' },
   year: 2026,
   /** Brand films in the reel are independent concept/spec work. Stated plainly for accuracy. */
   specNotice:

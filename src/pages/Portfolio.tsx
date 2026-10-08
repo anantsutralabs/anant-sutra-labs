@@ -1,8 +1,10 @@
+import type { ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
 import { work, categories, type WorkItem, type Category } from '../data/work'
+import { site } from '../data/site'
 
 const slug = (c: string) => c.toLowerCase().replace(/\s+/g, '-')
 
@@ -18,10 +20,21 @@ function PlayGlyph() {
   )
 }
 
+/** Hover cue for still images — "this opens bigger", not "this plays". */
+function ExpandGlyph() {
+  return (
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/55 text-white opacity-0 backdrop-blur transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 scale-90">
+      <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" />
+      </svg>
+    </span>
+  )
+}
+
 /**
  * The catalogue is a real mix — anamorphic cinematic shots, plain 16:9, and
  * vertical Reels content — so one uniform grid cell flattens that out. This
- * varies each card's WIDTH by category (tall-narrow for portrait, full-row
+ * varies each card's WIDTH by category (narrow for portrait/square, full-row
  * for ultra-wide anamorphic or a manually-featured `wide` item, half-row
  * for standard landscape); the card's HEIGHT is never forced — it's set
  * from the item's own aspect-ratio via inline style, so nothing is ever
@@ -34,8 +47,8 @@ function widthClasses(item: WorkItem): string {
   if (item.wide) {
     return 'col-span-2 md:col-span-6'
   }
-  if (item.aspect < 0.85) {
-    // portrait — narrow column, Reels-shaped
+  if (item.aspect < 1.2) {
+    // portrait or square — a third-width column (Reels-shaped, or a square render)
     return 'col-span-1 md:col-span-2'
   }
   if (item.aspect > 1.95) {
@@ -59,13 +72,23 @@ function FilmCard({
     <Reveal delay={delay} className={widthClasses(item)}>
       <button
         onClick={() => onOpen(item)}
-        aria-label={`Play ${item.title} — ${item.category}. ${item.blurb} ${item.duration}.`}
+        aria-label={
+          item.still
+            ? `View ${item.title} — ${item.category}. ${item.blurb}${
+                item.galleryThumbs && item.galleryThumbs.length > 1 ? ` ${item.galleryThumbs.length} images.` : ''
+              }`
+            : `Play ${item.title} — ${item.category}. ${item.blurb} ${item.duration}.`
+        }
         style={{ aspectRatio: String(item.aspect) }}
         className="focus-ring group relative block w-full overflow-hidden rounded-lg border border-white/10 bg-white/[0.02] text-left transition-colors duration-300 hover:border-white/25"
       >
         <img
           src={item.poster}
-          alt={`${item.title} — ${item.category} film by Anant Sutra Labs`}
+          alt={
+            item.still
+              ? `${item.title} — ${item.category} by Naveen Sharma`
+              : `${item.title} — ${item.category} film by Anant Sutra Labs`
+          }
           loading="lazy"
           decoding="async"
           className="h-full w-full object-cover opacity-95 transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.04] group-hover:opacity-100"
@@ -75,11 +98,18 @@ function FilmCard({
           style={{ background: 'linear-gradient(180deg, rgba(5,5,8,0) 45%, rgba(5,5,8,0.82) 100%)' }}
         />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <PlayGlyph />
+          {item.still ? <ExpandGlyph /> : <PlayGlyph />}
         </div>
-        <span className="t-label-sm tnum pointer-events-none absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
-          {item.duration}
-        </span>
+        {!item.still && (
+          <span className="t-label-sm tnum pointer-events-none absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
+            {item.duration}
+          </span>
+        )}
+        {item.still && item.galleryThumbs && item.galleryThumbs.length > 1 && (
+          <span className="t-label-sm tnum pointer-events-none absolute right-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
+            {item.galleryThumbs.length} images
+          </span>
+        )}
         {item.status === 'In development' && (
           <span className="t-label-sm pointer-events-none absolute left-3 top-3 rounded-full border border-white/20 bg-black/50 px-3 py-1.5 text-cyan-soft backdrop-blur">
             Coming Soon
@@ -96,16 +126,55 @@ function FilmCard({
   )
 }
 
-function FilmGrid({ items, onOpen, delayOffset = 0 }: {
+/** Closes the 3D Work category with a link out to the live ArtStation
+ *  profile — the projects are mirrored here, but the walkthrough videos and
+ *  anything newer live there. Text only: no ArtStation logo, just an honest
+ *  "this leaves the site" card. */
+function ArtStationCard({ delay }: { delay: number }) {
+  return (
+    <Reveal delay={delay} className="col-span-2 md:col-span-3">
+      <a
+        href={site.artstation.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ aspectRatio: '16 / 9' }}
+        className="focus-ring group relative flex w-full flex-col justify-between overflow-hidden rounded-lg border border-white/10 p-6 transition-colors duration-300 hover:border-white/30 md:p-8"
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-80 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            background:
+              'radial-gradient(70% 90% at 85% 15%, rgba(123,77,255,0.28), transparent 65%), radial-gradient(60% 80% at 10% 100%, rgba(34,211,238,0.18), transparent 70%)',
+          }}
+        />
+        <span className="eyebrow relative">Full 3D portfolio</span>
+        <div className="relative">
+          <h2 className="t-display-sm max-w-[16ch]">The full profile on ArtStation</h2>
+          <p className="body-copy mt-3 max-w-[36ch] text-sm">
+            Every project above, plus the Unreal Engine walkthrough videos, in its original home.
+          </p>
+          <span className="t-label mt-6 inline-flex items-center gap-2 text-cyan-soft">
+            View on ArtStation
+            <span aria-hidden="true" className="transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-1">↗</span>
+          </span>
+        </div>
+      </a>
+    </Reveal>
+  )
+}
+
+function FilmGrid({ items, onOpen, delayOffset = 0, trailing }: {
   items: WorkItem[]
   onOpen: (i: WorkItem) => void
   delayOffset?: number
+  trailing?: ReactNode
 }) {
   return (
     <div className="grid grid-flow-dense grid-cols-2 items-start gap-4 md:grid-cols-6">
       {items.map((item, i) => (
         <FilmCard key={item.id} item={item} onOpen={onOpen} delay={Math.min(i + delayOffset, 8) * 0.04} />
       ))}
+      {trailing}
     </div>
   )
 }
@@ -135,6 +204,11 @@ export default function Portfolio({
             highlightIds.add(w.id)
             return true
           }))
+          // a square 3D cover would leave a hole beside a 16:9 film, so the
+          // flagship pick shows its first full frame (16:9) instead
+          .map((w) => (w.still && w.aspect < 1.2 && w.gallery?.length
+            ? { ...w, poster: w.gallery[0], aspect: 16 / 9 }
+            : w))
       : []
   const rest = active === 'all' ? shown.filter((w) => !highlightIds.has(w.id)) : shown
 
@@ -156,7 +230,7 @@ export default function Portfolio({
 
         <Reveal delay={0.35}>
           <p className="body-copy mt-4 max-w-[46ch]">
-            Pick a category, or browse everything below. Click any frame to play the film.
+            Pick a category, or browse everything below. Click any frame to open it.
           </p>
         </Reveal>
 
@@ -191,7 +265,7 @@ export default function Portfolio({
               )
             })}
             <span className="t-label-sm tnum ml-1 self-center text-faint">
-              {shown.length} films
+              {shown.length} works
             </span>
           </div>
         </Reveal>
@@ -214,7 +288,14 @@ export default function Portfolio({
           </Reveal>
         )}
         <div className={highlights.length > 0 ? 'mt-5' : ''}>
-          <FilmGrid items={rest} onOpen={onOpen} delayOffset={highlights.length} />
+          <FilmGrid
+            items={rest}
+            onOpen={onOpen}
+            delayOffset={highlights.length}
+            trailing={
+              active === '3d-work' ? <ArtStationCard delay={Math.min(rest.length, 8) * 0.04} /> : undefined
+            }
+          />
         </div>
       </section>
     </>

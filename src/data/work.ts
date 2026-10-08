@@ -1,3 +1,5 @@
+import { work3d } from './work3d'
+
 /** Mirrors the production drive folders, ordered by current studio
  *  priority: commercial work leads since it's the most bookable category
  *  day to day, Mythology sits lower for now since there's a single strong
@@ -5,6 +7,7 @@
  *  differentiated category. */
 export type Category =
   | 'Commercial'
+  | '3D Work'
   | 'Short Film'
   | 'Micro Drama'
   | 'Mythology'
@@ -32,6 +35,16 @@ export type WorkItem = {
    *  poster (unlike the old anamorphic-only rule, it never fakes the aspect
    *  to get there, so nothing crops), it just reads as a featured row. */
   wide?: boolean
+  /** a still image (render / environment shot), not a film — the grid shows
+   *  an expand cue instead of a play button and the pop-up is an image view */
+  still?: boolean
+  /** every image of a still project, in order — the pop-up becomes a viewer
+   *  with arrows and a thumbnail strip (the grid card shows `poster`) */
+  gallery?: string[]
+  /** small versions of `gallery`, for the viewer's thumbnail strip */
+  galleryThumbs?: string[]
+  /** where the full project lives (e.g. its ArtStation page) */
+  link?: { label: string; url: string }
   /** independent concept/spec work rather than a commissioned campaign */
   spec?: boolean
   /** absent while a project is still in development — the entry shows its
@@ -82,6 +95,9 @@ export const work: WorkItem[] = [
   make('pizza',         'Pizza Commercial',         'Commercial', 'Food commercial — steam, pull-apart and appetite cues.',           1280, 720,  '0:15', true),
   make('cupid',         'Cupid Commercial',         'Commercial', 'Vertical product spot built for Reels placement.',                 720,  1280, '0:15', true),
   make('jacket-review',  'Jacket Product Review',    'Commercial', 'Vertical product-review style piece, UGC-adjacent.',              1080, 1920, '0:15', true),
+
+  // ── 3D Work — mirrored from ArtStation (see ./work3d.ts) ──
+  ...work3d,
 
   // ── Short Film — the personal/experimental work; the actual differentiator ──
   {
@@ -138,7 +154,7 @@ export const work: WorkItem[] = [
 ]
 
 export const categories: ('All' | Category)[] = [
-  'All', 'Commercial', 'Short Film', 'Micro Drama', 'Mythology', 'Kids Rhymes', 'Real Estate', 'Fashion',
+  'All', 'Commercial', '3D Work', 'Short Film', 'Micro Drama', 'Mythology', 'Kids Rhymes', 'Real Estate', 'Fashion',
 ]
 
 export const featured = ['rama-trailer', 'the-moon-parcel', 'royal-enfield']

@@ -26,7 +26,9 @@ function Icon({ kind }: { kind: 'play' | 'pause' | 'expand' | 'compress' | 'cc' 
 }
 
 export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: () => void }) {
-  const portrait = !!item && item.aspect < 1
+  const gallery = item?.gallery ?? []
+  const galleryMode = gallery.length > 0
+  const portrait = !!item && item.aspect < 1 && !galleryMode
   const video = useRef<HTMLVideoElement>(null)
   const frame = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
@@ -42,6 +44,8 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
   // on by default when captions exist — the whole point is that an
   // international viewer shouldn't have to hunt for a toggle
   const [captionsOn, setCaptionsOn] = useState(true)
+  // which image of a still project's gallery is on screen
+  const [idx, setIdx] = useState(0)
 
   useEffect(() => {
     if (!item) return
@@ -51,9 +55,13 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
     setProgress(0)
     setTime(0)
     setCaptionsOn(true)
+    setIdx(0)
 
+    const n = item.gallery?.length ?? 0
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
+      if (n > 1 && e.key === 'ArrowRight') setIdx((i) => (i + 1) % n)
+      if (n > 1 && e.key === 'ArrowLeft') setIdx((i) => (i - 1 + n) % n)
       if (e.key === ' ' && item.video) {
         e.preventDefault()
         video.current?.paused ? video.current?.play() : video.current?.pause()
@@ -78,6 +86,13 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
     document.addEventListener('fullscreenchange', onFsChange)
     return () => document.removeEventListener('fullscreenchange', onFsChange)
   }, [])
+
+  // warm the next image so stepping through a project doesn't flash
+  useEffect(() => {
+    if (gallery.length > 1) new Image().src = gallery[(idx + 1) % gallery.length]
+  }, [idx, gallery])
+
+  const step = (d: number) => setIdx((i) => (i + d + gallery.length) % gallery.length)
 
   // HTMLTrackElement's mode isn't a React prop — synced imperatively
   useEffect(() => {
@@ -145,9 +160,11 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
               onClick={() => item.video && togglePlay()}
               className={`group relative overflow-hidden rounded-xl border border-white/10 bg-black ${portrait ? '' : 'w-full'}`}
               style={
-                portrait
-                  ? { aspectRatio: String(item.aspect), height: 'min(76svh, 820px)', maxWidth: '100%' }
-                  : { aspectRatio: String(item.aspect) }
+                galleryMode
+                  ? { aspectRatio: '16 / 9', maxHeight: '72svh' }
+                  : portrait
+                    ? { aspectRatio: String(item.aspect), height: 'min(76svh, 820px)', maxWidth: '100%' }
+                    : { aspectRatio: String(item.aspect) }
               }
             >
               {item.video ? (
@@ -195,10 +212,46 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
                     />
                   )}
                 </>
+              ) : galleryMode ? (
+                <>
+                  {/* contain, not cover: a project mixes landscape renders,
+                      square crops and wide model sheets — none get cropped */}
+                  <img
+                    key={gallery[idx]}
+                    src={gallery[idx]}
+                    alt={`${item.title} — image ${idx + 1} of ${gallery.length} by Naveen Sharma. ${item.blurb}`}
+                    className="h-full w-full object-contain"
+                  />
+                  {gallery.length > 1 && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); step(-1) }}
+                        aria-label="Previous image"
+                        className="focus-ring absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white/85 backdrop-blur transition-colors hover:bg-black/75 hover:text-white"
+                      >
+                        <span aria-hidden="true" className="text-xl">←</span>
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); step(1) }}
+                        aria-label="Next image"
+                        className="focus-ring absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/55 text-white/85 backdrop-blur transition-colors hover:bg-black/75 hover:text-white"
+                      >
+                        <span aria-hidden="true" className="text-xl">→</span>
+                      </button>
+                      <span className="t-label-sm tnum pointer-events-none absolute bottom-3 right-3 rounded-full bg-black/55 px-2.5 py-1 text-white/80 backdrop-blur">
+                        {idx + 1} / {gallery.length}
+                      </span>
+                    </>
+                  )}
+                </>
               ) : (
                 <img
                   src={item.poster}
-                  alt={`${item.title} — ${item.category} film by Anant Sutra Labs`}
+                  alt={
+                    item.still
+                      ? `${item.title} — ${item.category} by Naveen Sharma. ${item.blurb}`
+                      : `${item.title} — ${item.category} film by Anant Sutra Labs`
+                  }
                   className="h-full w-full object-cover"
                 />
               )}
@@ -289,6 +342,25 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
             </div>
             </div>
 
+            {/* thumbnail strip — jump straight to any image in the project */}
+            {galleryMode && item.galleryThumbs && item.galleryThumbs.length > 1 && (
+              <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Project images">
+                {item.galleryThumbs.map((src, i) => (
+                  <button
+                    key={src}
+                    onClick={() => setIdx(i)}
+                    aria-label={`Show image ${i + 1} of ${item.galleryThumbs!.length}`}
+                    aria-current={i === idx}
+                    className={`focus-ring relative h-16 w-28 shrink-0 overflow-hidden rounded-md border transition-all duration-300 ${
+                      i === idx ? 'border-cyan-soft/70 opacity-100' : 'border-white/10 opacity-55 hover:opacity-90'
+                    }`}
+                  >
+                    <img src={src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* development boards stand in for a film that does not exist yet */}
             {item.stills && (
               <div className="no-scrollbar mt-3 flex gap-3 overflow-x-auto pb-1">
@@ -317,6 +389,17 @@ export function Lightbox({ item, onClose }: { item: WorkItem | null; onClose: ()
                 <h2 className="t-display-md">{item.title}</h2>
                 <p className="body-copy mt-2 max-w-[58ch]">{item.synopsis ?? item.blurb}</p>
                 <p className="t-label-sm mt-2 text-faint">{item.role}</p>
+                {item.link && (
+                  <a
+                    href={item.link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring t-label mt-4 inline-flex items-center gap-2 text-cyan-soft transition-opacity hover:opacity-75"
+                  >
+                    {item.link.label}
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                )}
               </div>
               <div className="t-label flex shrink-0 items-center gap-4">
                 <span className="text-cyan-soft">{item.category}</span>
