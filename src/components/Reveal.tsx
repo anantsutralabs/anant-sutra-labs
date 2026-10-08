@@ -47,6 +47,9 @@ export function Reveal({
             y: 0,
             opacity: 1,
             filter: 'blur(0px)',
+            // `blur(0px)` would still leave every revealed block with its own
+            // filter layer for good — on a long grid that adds up
+            transitionEnd: { filter: 'none' },
             transition: { duration: 0.85, delay, ease: [0.16, 1, 0.3, 1] },
           },
         }}
