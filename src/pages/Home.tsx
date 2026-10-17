@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { SplitText } from '../components/SplitText'
 import { Reveal, HairRule } from '../components/Reveal'
 import { Magnetic } from '../components/Magnetic'
+import { Showreel } from '../components/Showreel'
 import { ButtonLink, PageLink } from '../components/PageLink'
 import { capabilityStats } from '../data/services'
 import { featured } from '../data/work'
@@ -80,6 +81,9 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
+
+      {/* ── SHOWREEL ─────────────────────────────────────────── */}
+      <Showreel />
 
       {/* ── CAPABILITY STATS ─────────────────────────────────── */}
       <section className="relative pt-24 md:pt-36">
